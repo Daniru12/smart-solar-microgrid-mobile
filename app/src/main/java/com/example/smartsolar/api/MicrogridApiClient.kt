@@ -35,7 +35,7 @@ data class EnergySlot(
 )
 
 class MicrogridApiClient {
-    private val BASE_URL = "https://10.0.2.2:7083/api" // Assuming emulator connects to localhost
+    private val BASE_URL = "http://10.0.2.2:5059/api" // Assuming emulator connects to localhost
 
     suspend fun getActiveStations(): List<Station> = withContext(Dispatchers.IO) {
         val stations = mutableListOf<Station>()
