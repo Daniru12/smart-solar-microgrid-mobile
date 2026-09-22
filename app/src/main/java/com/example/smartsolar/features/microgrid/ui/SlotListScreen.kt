@@ -15,7 +15,7 @@ import com.example.smartsolar.features.microgrid.models.EnergySlot
 fun SlotListScreen(
     stationId: String,
     viewModel: MicrogridViewModel,
-    onSlotSelected: (String, String) -> Unit // Passes (stationId, slotId) to Reservation Component
+    onSlotSelected: (String, String, String) -> Unit // Passes (stationId, slotId, date) to Reservation Component
 ) {
     val state by viewModel.slotsState.collectAsState()
     
@@ -54,7 +54,7 @@ fun SlotListScreen(
                         items(slots) { slot ->
                             SlotItem(
                                 slot = slot,
-                                onSelect = { onSlotSelected(stationId, slot.id) }
+                                onSelect = { onSlotSelected(stationId, slot.id, selectedDate) }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
