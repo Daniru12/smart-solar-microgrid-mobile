@@ -22,12 +22,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.smartsolar.ui.theme.Navy800
+import com.example.smartsolar.ui.theme.CharcoalText
+import com.example.smartsolar.ui.theme.GrayText
+import com.example.smartsolar.ui.theme.LimeAccent
+import com.example.smartsolar.ui.theme.SurfaceLight
 
 sealed class NavItem(
     val title: String,
@@ -46,11 +50,11 @@ fun CustomBottomNavigation(
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit
 ) {
-    // Colors matching the sleek dark theme from the reference
-    val barBackground = Navy800
-    val activePillBackground = Color(0xFF332D41) // Dark purple pill
-    val activeContentColor = Color(0xFFD0BCFF) // Light purple text/icon
-    val inactiveContentColor = Color(0xFF9E9E9E)
+    // Light Theme Colors
+    val barBackground = SurfaceLight
+    val activePillBackground = LimeAccent
+    val activeContentColor = CharcoalText
+    val inactiveContentColor = GrayText
 
     Box(
         modifier = Modifier
@@ -61,6 +65,7 @@ fun CustomBottomNavigation(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .shadow(elevation = 16.dp, shape = RoundedCornerShape(32.dp), spotColor = Color(0x1A000000))
                 .clip(RoundedCornerShape(32.dp))
                 .background(barBackground)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -100,7 +105,7 @@ fun CustomBottomNavigation(
                                 Text(
                                     text = item.title,
                                     color = activeContentColor,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
                                 )
                             }

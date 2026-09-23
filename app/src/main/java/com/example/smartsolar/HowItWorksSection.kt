@@ -13,7 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.smartsolar.ui.theme.Teal400
+import com.example.smartsolar.ui.theme.CharcoalText
+import com.example.smartsolar.ui.theme.GrayText
+import com.example.smartsolar.ui.theme.LimeAccent
 
 @Composable
 fun HowItWorksSection() {
@@ -26,7 +28,7 @@ fun HowItWorksSection() {
             text = "How It Works",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = CharcoalText
         )
         
         Spacer(modifier = Modifier.height(32.dp))
@@ -60,12 +62,12 @@ fun StepItem(stepNumber: String, title: String, description: String) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Teal400.copy(alpha = 0.2f)),
+                .background(LimeAccent),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stepNumber,
-                color = Teal400,
+                color = CharcoalText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
@@ -74,14 +76,14 @@ fun StepItem(stepNumber: String, title: String, description: String) {
         Column {
             Text(
                 text = title,
-                color = Color.White,
+                color = CharcoalText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = description,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = GrayText,
                 fontSize = 14.sp,
                 lineHeight = 20.sp
             )

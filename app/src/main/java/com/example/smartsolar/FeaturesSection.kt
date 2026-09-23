@@ -14,15 +14,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.smartsolar.ui.theme.GlassBorder
-import com.example.smartsolar.ui.theme.GlassPanel
-import com.example.smartsolar.ui.theme.Teal400
+import com.example.smartsolar.ui.theme.BorderLight
+import com.example.smartsolar.ui.theme.CharcoalText
+import com.example.smartsolar.ui.theme.GrayText
+import com.example.smartsolar.ui.theme.LimeAccent
+import com.example.smartsolar.ui.theme.SurfaceLight
 
 @Composable
 fun FeaturesSection() {
@@ -35,14 +37,14 @@ fun FeaturesSection() {
             text = "Why Choose SolarGrid",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = CharcoalText
         )
         
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
             text = "Enterprise-grade tools for modern energy trading.",
-            color = MaterialTheme.colorScheme.onSurface,
+            color = GrayText,
             fontSize = 16.sp
         )
 
@@ -74,40 +76,37 @@ fun FeatureCard(title: String, description: String, icon: ImageVector) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp), spotColor = Color(0x1A000000))
             .clip(RoundedCornerShape(16.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(GlassPanel, Color.Transparent)
-                )
-            )
-            .border(1.dp, GlassBorder, RoundedCornerShape(16.dp))
+            .background(SurfaceLight)
+            .border(1.dp, BorderLight, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Teal400.copy(alpha = 0.2f)),
+                .background(LimeAccent),
             contentAlignment = androidx.compose.ui.Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Teal400,
+                tint = CharcoalText,
                 modifier = Modifier.size(24.dp)
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = title,
-            color = Color.White,
+            color = CharcoalText,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = description,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = GrayText,
             fontSize = 14.sp,
             lineHeight = 20.sp
         )
