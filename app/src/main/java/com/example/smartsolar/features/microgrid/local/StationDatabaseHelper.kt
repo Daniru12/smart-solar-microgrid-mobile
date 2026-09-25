@@ -12,7 +12,7 @@ class StationDatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION), StationDao {
 
     companion object {
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
         private const val DATABASE_NAME = "StationDatabase.db"
         private const val TABLE_STATIONS = "stations"
 

@@ -3,7 +3,7 @@ package com.example.smartsolar.features.microgrid.models
 import com.google.gson.annotations.SerializedName
 
 data class Station(
-    @SerializedName("id")
+    @SerializedName("stationId")
     val id: String,
     
     @SerializedName("name")
@@ -18,10 +18,10 @@ data class Station(
     @SerializedName("longitude")
     val longitude: Double,
     
-    @SerializedName("capacityKw")
+    @SerializedName("capacity")
     val capacityKw: Int,
     
-    @SerializedName("availableStorageKwh")
+    @SerializedName("availableStorage")
     val availableStorageKwh: Int,
     
     @SerializedName("status")
