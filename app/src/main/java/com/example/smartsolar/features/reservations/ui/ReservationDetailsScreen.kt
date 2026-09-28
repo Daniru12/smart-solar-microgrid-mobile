@@ -28,7 +28,8 @@ fun ReservationDetailsScreen(
     onNavigateBack: () -> Unit,
     onModify: (Reservation) -> Unit,
     onViewQR: (Reservation) -> Unit,
-    onComplete: (Reservation) -> Unit
+    onComplete: (Reservation) -> Unit,
+    onApprove: (Reservation) -> Unit = {}
 ) {
     var showCancelDialog by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsState()
@@ -158,6 +159,18 @@ fun ReservationDetailsScreen(
                 }
             } else {
                 // Operator actions
+                if (reservation.status == "Pending") {
+                    Button(
+                        onClick = { onApprove(reservation) },
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary, contentColor = CharcoalText)
+                    ) {
+                        Icon(Icons.Default.ThumbUp, null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Approve Reservation", fontWeight = FontWeight.Bold)
+                    }
+                }
                 if (reservation.status == "Approved") {
                     Button(
                         onClick = { onComplete(reservation) },

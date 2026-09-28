@@ -12,13 +12,14 @@ class StationDatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION), StationDao {
 
     companion object {
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 3
         private const val DATABASE_NAME = "StationDatabase.db"
         private const val TABLE_STATIONS = "stations"
 
         private const val KEY_ID = "id"
         private const val KEY_NAME = "name"
         private const val KEY_ADDRESS = "address"
+        private const val KEY_GRID_OPERATOR = "gridOperatorName"
         private const val KEY_LAT = "latitude"
         private const val KEY_LNG = "longitude"
         private const val KEY_CAPACITY = "capacityKw"
@@ -31,6 +32,7 @@ class StationDatabaseHelper(context: Context) :
                 + KEY_ID + " TEXT PRIMARY KEY,"
                 + KEY_NAME + " TEXT,"
                 + KEY_ADDRESS + " TEXT,"
+                + KEY_GRID_OPERATOR + " TEXT,"
                 + KEY_LAT + " REAL,"
                 + KEY_LNG + " REAL,"
                 + KEY_CAPACITY + " INTEGER,"
@@ -56,6 +58,7 @@ class StationDatabaseHelper(context: Context) :
                     id = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ID)),
                     name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_NAME)),
                     address = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ADDRESS)),
+                    gridOperatorName = cursor.getString(cursor.getColumnIndexOrThrow(KEY_GRID_OPERATOR)),
                     latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_LAT)),
                     longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_LNG)),
                     capacityKw = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAPACITY)),
@@ -73,7 +76,7 @@ class StationDatabaseHelper(context: Context) :
         val db = this@StationDatabaseHelper.readableDatabase
         val cursor = db.query(
             TABLE_STATIONS,
-            arrayOf(KEY_ID, KEY_NAME, KEY_ADDRESS, KEY_LAT, KEY_LNG, KEY_CAPACITY, KEY_STORAGE, KEY_STATUS),
+            arrayOf(KEY_ID, KEY_NAME, KEY_ADDRESS, KEY_GRID_OPERATOR, KEY_LAT, KEY_LNG, KEY_CAPACITY, KEY_STORAGE, KEY_STATUS),
             "$KEY_ID=?",
             arrayOf(stationId),
             null, null, null, null
@@ -85,6 +88,7 @@ class StationDatabaseHelper(context: Context) :
                 id = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ID)),
                 name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_NAME)),
                 address = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ADDRESS)),
+                gridOperatorName = cursor.getString(cursor.getColumnIndexOrThrow(KEY_GRID_OPERATOR)),
                 latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_LAT)),
                 longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_LNG)),
                 capacityKw = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAPACITY)),
@@ -105,6 +109,7 @@ class StationDatabaseHelper(context: Context) :
                     put(KEY_ID, station.id)
                     put(KEY_NAME, station.name)
                     put(KEY_ADDRESS, station.address)
+                    put(KEY_GRID_OPERATOR, station.gridOperatorName)
                     put(KEY_LAT, station.latitude)
                     put(KEY_LNG, station.longitude)
                     put(KEY_CAPACITY, station.capacityKw)
@@ -125,6 +130,7 @@ class StationDatabaseHelper(context: Context) :
             put(KEY_ID, station.id)
             put(KEY_NAME, station.name)
             put(KEY_ADDRESS, station.address)
+            put(KEY_GRID_OPERATOR, station.gridOperatorName)
             put(KEY_LAT, station.latitude)
             put(KEY_LNG, station.longitude)
             put(KEY_CAPACITY, station.capacityKw)

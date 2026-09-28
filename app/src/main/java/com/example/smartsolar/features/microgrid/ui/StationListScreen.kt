@@ -18,6 +18,9 @@ import com.example.smartsolar.ui.theme.CharcoalText
 import com.example.smartsolar.ui.theme.GrayText
 import com.example.smartsolar.ui.theme.LimeAccent
 import com.example.smartsolar.ui.theme.SurfaceLight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.List
 
 @Composable
 fun StationListScreen(
@@ -25,22 +28,37 @@ fun StationListScreen(
     onStationSelected: (String) -> Unit
 ) {
     val state by viewModel.stationsState.collectAsState()
+    var isMapView by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadStations()
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 32.dp)) {
-        Text("Microgrid Stations", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = CharcoalText)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Microgrid Stations", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = CharcoalText)
+            IconButton(onClick = { isMapView = !isMapView }) {
+                Icon(if (isMapView) Icons.Default.List else Icons.Default.Map, contentDescription = "Toggle View")
+            }
+        }
         Spacer(modifier = Modifier.height(24.dp))
 
-        when (state) {
-            is UiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = LimeAccent)
-                }
+        if (isMapView) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                GridMapScreen(viewModel = viewModel, onStationSelected = onStationSelected)
             }
-            is UiState.Error -> {
+        } else {
+            when (state) {
+                is UiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = LimeAccent)
+                    }
+                }
+                is UiState.Error -> {
                 val error = (state as UiState.Error).message
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -70,9 +88,10 @@ fun StationListScreen(
                     }
                 }
             }
+                }
+            }
         }
     }
-}
 
 @Composable
 fun StationItem(station: Station, onClick: () -> Unit) {

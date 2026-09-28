@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.smartsolar.features.auth.local.UserDatabaseHelper
 import com.example.smartsolar.features.auth.repository.AuthRepository
 import com.example.smartsolar.features.auth.repository.ProsumerRepository
 import com.example.smartsolar.features.auth.ui.*
@@ -121,7 +122,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         ReservationViewModel(ReservationRepository(NetworkModule.reservationApiService))
     }
     val prosumerViewModel = remember {
-        ProsumerViewModel(ProsumerRepository(NetworkModule.prosumerApiService))
+        ProsumerViewModel(ProsumerRepository(NetworkModule.prosumerApiService, UserDatabaseHelper(context)))
     }
 
     val prosumerNavItems = listOf(
@@ -290,7 +291,13 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 onNavigateBack = { currentScreen = Screen.OperatorBookings },
                 onModify = {},
                 onViewQR = {},
-                onComplete = { r -> currentScreen = Screen.QRVerificationResult(r) }
+                onComplete = { r -> currentScreen = Screen.QRVerificationResult(r) },
+                onApprove = { r ->
+                    reservationViewModel.approveReservation(authToken, r.id) {
+                        Toast.makeText(context, "Reservation Approved!", Toast.LENGTH_SHORT).show()
+                        currentScreen = Screen.OperatorBookings
+                    }
+                }
             )
             return
         }

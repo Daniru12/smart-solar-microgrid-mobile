@@ -103,7 +103,7 @@ fun QRVerificationResultScreen(
 
                 Button(
                     onClick = {
-                        viewModel.approveReservation(token, reservation.id) {}
+                        viewModel.completeReservation(token, reservation.id) {}
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(12.dp),

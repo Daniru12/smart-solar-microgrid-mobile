@@ -127,7 +127,7 @@ fun QRScannerScreen(
                                                                 try {
                                                                     val json = JSONObject(raw)
                                                                     val reservationId = json.getString("reservationId")
-                                                                    viewModel.loadById(token, reservationId)
+                                                                    viewModel.validateQr(token, reservationId)
                                                                 } catch (e: Exception) {
                                                                     scanStatus = "Invalid QR code format"
                                                                     isProcessing = false
