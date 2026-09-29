@@ -224,6 +224,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 reservation = (currentScreen as Screen.ReservationDetails).reservation,
                 token = authToken,
                 viewModel = reservationViewModel,
+                microgridViewModel = microgridViewModel,
                 isOperator = false,
                 onNavigateBack = { 
                     prosumerTabIndex = 2
@@ -287,6 +288,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 reservation = res,
                 token = authToken,
                 viewModel = reservationViewModel,
+                microgridViewModel = microgridViewModel,
                 isOperator = true,
                 onNavigateBack = { currentScreen = Screen.OperatorBookings },
                 onModify = {},
@@ -381,6 +383,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                     1 -> StationListScreen(viewModel = microgridViewModel, onStationSelected = { stationId -> currentScreen = Screen.StationDetails(stationId) })
                     2 -> MyBookingsScreen(
                         viewModel = reservationViewModel,
+                        microgridViewModel = microgridViewModel,
                         token = authToken,
                         nic = prosumerNic,
                         onReservationClick = { res -> currentScreen = Screen.ReservationDetails(res) },
@@ -388,6 +391,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                     )
                     3 -> BookingHistoryScreen(
                         viewModel = reservationViewModel,
+                        microgridViewModel = microgridViewModel,
                         token = authToken,
                         nic = prosumerNic,
                         onReservationClick = { res -> currentScreen = Screen.ReservationDetails(res) }
