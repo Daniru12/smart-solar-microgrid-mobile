@@ -39,6 +39,10 @@ object NetworkModule {
         retrofit.create(ProsumerApiService::class.java)
     }
 
+    val backofficeApiService: com.example.smartsolar.features.backoffice.network.BackofficeApiService by lazy {
+        retrofit.create(com.example.smartsolar.features.backoffice.network.BackofficeApiService::class.java)
+    }
+
     // Auth token stored in memory during the session
     var authToken: String = ""
     fun bearerToken() = "Bearer $authToken"
