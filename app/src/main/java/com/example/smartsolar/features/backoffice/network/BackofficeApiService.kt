@@ -7,7 +7,6 @@ import retrofit2.http.*
 
 interface BackofficeApiService {
 
-    // --- Users ---
     @GET("users")
     suspend fun getAllUsers(
         @Header("Authorization") token: String
@@ -20,7 +19,6 @@ interface BackofficeApiService {
         @Body body: Map<String, String>
     ): Response<Unit>
 
-    // --- Prosumers ---
     @GET("prosumers")
     suspend fun getAllProsumers(
         @Header("Authorization") token: String

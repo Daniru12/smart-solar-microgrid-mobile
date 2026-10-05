@@ -69,7 +69,7 @@ fun RegisterScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Error
+
             if (registerState is RegisterState.Error) {
                 Surface(
                     color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),

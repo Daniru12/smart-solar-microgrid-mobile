@@ -8,7 +8,7 @@ import com.example.smartsolar.features.auth.models.ProsumerProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class UserDatabaseHelper(context: Context) : 
+class UserDatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {

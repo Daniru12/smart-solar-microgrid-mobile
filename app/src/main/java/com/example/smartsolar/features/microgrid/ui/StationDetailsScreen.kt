@@ -53,7 +53,7 @@ fun StationDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text("Overview", fontWeight = FontWeight.Bold, color = CharcoalText, fontSize = 18.sp, modifier = Modifier.padding(end = 48.dp))
                     }
@@ -88,8 +88,7 @@ fun StationDetailsScreen(
                 }
                 is UiState.Success -> {
                     val station = (state as UiState.Success).data
-                    
-                    // Header Name
+
                     Text(
                         text = station.name,
                         style = MaterialTheme.typography.headlineSmall,
@@ -108,7 +107,6 @@ fun StationDetailsScreen(
                         )
                     }
 
-                    // Tabs
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -132,7 +130,6 @@ fun StationDetailsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Stats Row 1
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -165,7 +162,6 @@ fun StationDetailsScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Chart Section
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -187,7 +183,6 @@ fun StationDetailsScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Dummy Line Chart
                     DummyLineChart(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -197,7 +192,6 @@ fun StationDetailsScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Map and Address Section
                     Text(
                         text = "Location",
                         fontSize = 18.sp,
@@ -215,8 +209,7 @@ fun StationDetailsScreen(
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Book Button
+
                     Button(
                         onClick = { onViewSlotsClicked(station.id) },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).height(56.dp),
@@ -225,7 +218,7 @@ fun StationDetailsScreen(
                     ) {
                         Text("Book Now (View Slots)", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
-                    
+
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
@@ -261,12 +254,11 @@ fun DummyLineChart(modifier: Modifier = Modifier) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val accentColor = LimeAccent
     val gridColor = Color.LightGray.copy(alpha = 0.3f)
-    
+
     Canvas(modifier = modifier) {
         val width = size.width
         val height = size.height
 
-        // Draw Grid Lines
         for (i in 0..4) {
             val y = height * (i / 4f)
             drawLine(
@@ -276,8 +268,7 @@ fun DummyLineChart(modifier: Modifier = Modifier) {
                 strokeWidth = 2f
             )
         }
-        
-        // Draw vertical marker
+
         val markerX = width * 0.55f
         drawLine(
             color = accentColor.copy(alpha = 0.6f),
@@ -286,7 +277,6 @@ fun DummyLineChart(modifier: Modifier = Modifier) {
             strokeWidth = 6f
         )
 
-        // Draw Line 1 (Accent)
         val path1 = Path().apply {
             moveTo(0f, height * 0.8f)
             cubicTo(width * 0.2f, height * 0.5f, width * 0.3f, height * 0.9f, width * 0.5f, height * 0.4f)
@@ -294,18 +284,16 @@ fun DummyLineChart(modifier: Modifier = Modifier) {
         }
         drawPath(path1, color = accentColor, style = Stroke(width = 6f))
 
-        // Draw Line 2 (Primary)
         val path2 = Path().apply {
             moveTo(0f, height * 0.9f)
             cubicTo(width * 0.2f, height * 0.7f, width * 0.3f, height * 0.8f, width * 0.5f, height * 0.6f)
             cubicTo(width * 0.7f, height * 0.3f, width * 0.8f, height * 0.7f, width, height * 0.5f)
         }
         drawPath(path2, color = primaryColor, style = Stroke(width = 8f))
-        
-        // Draw circles at data points on vertical marker
+
         drawCircle(color = accentColor, radius = 10f, center = Offset(markerX, height * 0.38f))
         drawCircle(color = Color.White, radius = 6f, center = Offset(markerX, height * 0.38f))
-        
+
         drawCircle(color = primaryColor, radius = 10f, center = Offset(markerX, height * 0.58f))
         drawCircle(color = Color.White, radius = 6f, center = Offset(markerX, height * 0.58f))
     }
@@ -316,7 +304,7 @@ fun DummyMapCard(address: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E272E)), // Dark Map base color
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E272E)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -324,41 +312,37 @@ fun DummyMapCard(address: String, modifier: Modifier = Modifier) {
                 val width = size.width
                 val height = size.height
 
-                // Draw some simulated 3D glowing roads
                 val roadColor = LimeAccent.copy(alpha = 0.3f)
                 val roadGlow = LimeAccent.copy(alpha = 0.1f)
-                
-                // Horizontal road glow
+
                 drawLine(
                     color = roadGlow,
                     start = Offset(0f, height * 0.62f),
                     end = Offset(width, height * 0.52f),
                     strokeWidth = 24f
                 )
-                // Horizontal road core
+
                 drawLine(
                     color = roadColor,
                     start = Offset(0f, height * 0.6f),
                     end = Offset(width, height * 0.5f),
                     strokeWidth = 10f
                 )
-                
-                // Vertical road glow
+
                 drawLine(
                     color = roadGlow,
                     start = Offset(width * 0.37f, 0f),
                     end = Offset(width * 0.43f, height),
                     strokeWidth = 26f
                 )
-                // Vertical road core
+
                 drawLine(
                     color = roadColor,
                     start = Offset(width * 0.35f, 0f),
                     end = Offset(width * 0.45f, height),
                     strokeWidth = 12f
                 )
-                
-                // Minor road
+
                 drawLine(
                     color = roadColor,
                     start = Offset(width * 0.4f, height * 0.2f),
@@ -367,7 +351,6 @@ fun DummyMapCard(address: String, modifier: Modifier = Modifier) {
                 )
             }
 
-            // Location Pin Icon
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Pin",
@@ -378,7 +361,6 @@ fun DummyMapCard(address: String, modifier: Modifier = Modifier) {
                     .size(36.dp)
             )
 
-            // Address overlay at bottom
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

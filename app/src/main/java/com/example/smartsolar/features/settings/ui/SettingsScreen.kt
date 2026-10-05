@@ -62,7 +62,7 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Appearance Section
+
             SettingsSection(title = "Appearance") {
                 SettingsSwitchItem(
                     icon = Icons.Default.Brightness4,
@@ -73,7 +73,6 @@ fun SettingsScreen(
                 )
             }
 
-            // Notifications Section
             SettingsSection(title = "Notifications") {
                 SettingsSwitchItem(
                     icon = Icons.Default.NotificationsActive,
@@ -84,23 +83,21 @@ fun SettingsScreen(
                 )
             }
 
-            // Preferences Section
             SettingsSection(title = "Preferences") {
                 SettingsClickableItem(
                     icon = Icons.Default.Language,
                     title = "Language",
                     subtitle = "English (US)",
-                    onClick = { /* Open language selector */ }
+                    onClick = {  }
                 )
                 SettingsClickableItem(
                     icon = Icons.Default.Security,
                     title = "Privacy & Security",
                     subtitle = "Manage permissions and data",
-                    onClick = { /* Open privacy settings */ }
+                    onClick = {  }
                 )
             }
 
-            // Data & Storage Section
             SettingsSection(title = "Data & Storage") {
                 SettingsClickableItem(
                     icon = Icons.Default.DeleteOutline,
@@ -111,7 +108,6 @@ fun SettingsScreen(
                 )
             }
 
-            // App Info
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -130,8 +126,8 @@ fun SettingsScreen(
             title = { Text("Clear Cache") },
             text = { Text("Are you sure you want to clear the app cache? This will not delete your account data.") },
             confirmButton = {
-                TextButton(onClick = { 
-                    showClearCacheDialog = false 
+                TextButton(onClick = {
+                    showClearCacheDialog = false
                     onClearCache()
                 }) {
                     Text("Clear", color = MaterialTheme.colorScheme.error)

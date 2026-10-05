@@ -8,7 +8,7 @@ import com.example.smartsolar.features.microgrid.models.Station
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StationDatabaseHelper(context: Context) : 
+class StationDatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION), StationDao {
 
     companion object {

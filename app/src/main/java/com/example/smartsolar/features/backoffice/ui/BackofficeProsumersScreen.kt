@@ -53,7 +53,7 @@ fun BackofficeProsumersScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        // Tab switcher
+
         TabRow(
             selectedTabIndex = selectedTabIndex,
             containerColor = MaterialTheme.colorScheme.surface,
@@ -101,7 +101,6 @@ fun BackofficeProsumersScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Search bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -120,7 +119,7 @@ fun BackofficeProsumersScreen(
         Spacer(Modifier.height(12.dp))
 
         if (selectedTabIndex == 0) {
-            // All prosumers tab
+
             val filtered = prosumers.filter {
                 it.nic.contains(searchQuery, ignoreCase = true) || it.name.contains(searchQuery, ignoreCase = true)
             }
@@ -145,7 +144,7 @@ fun BackofficeProsumersScreen(
                 }
             }
         } else {
-            // Deactivation requests tab
+
             val filteredDeactivations = deactivations.filter {
                 it.nic.contains(searchQuery, ignoreCase = true) || it.name.contains(searchQuery, ignoreCase = true)
             }
@@ -274,7 +273,6 @@ fun DeactivationRequestCard(
 
             Spacer(Modifier.height(14.dp))
 
-            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)

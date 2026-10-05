@@ -33,7 +33,7 @@ fun EnergyFlowSection() {
             .padding(horizontal = 24.dp, vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Tagline badge
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -59,7 +59,7 @@ fun EnergyFlowSection() {
             color = CharcoalText,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
@@ -72,7 +72,6 @@ fun EnergyFlowSection() {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // Flow Steps
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)

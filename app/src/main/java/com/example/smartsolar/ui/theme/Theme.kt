@@ -37,8 +37,8 @@ private val SmartSolarDarkColorScheme = darkColorScheme(
 
 @Composable
 fun SmartSolarTheme(
-    darkTheme: Boolean = false, 
-    dynamicColor: Boolean = false, 
+    darkTheme: Boolean = false,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) SmartSolarDarkColorScheme else SmartSolarColorScheme

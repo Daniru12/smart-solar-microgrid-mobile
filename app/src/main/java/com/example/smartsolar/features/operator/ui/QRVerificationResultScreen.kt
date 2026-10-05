@@ -104,7 +104,7 @@ fun QRVerificationResultScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Hero Verification Status Card
+
             Surface(
                 shape = RoundedCornerShape(22.dp),
                 color = when {
@@ -192,7 +192,6 @@ fun QRVerificationResultScreen(
                 }
             }
 
-            // Detailed Dispatch Ledger Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -201,7 +200,7 @@ fun QRVerificationResultScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    // Station & Slot Header
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -243,7 +242,6 @@ fun QRVerificationResultScreen(
                         color = Color(0xFFE5E7EB)
                     )
 
-                    // Prosumer Account Identity Row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -282,7 +280,6 @@ fun QRVerificationResultScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // 4-Telemetry Telemetry Grid
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -327,7 +324,6 @@ fun QRVerificationResultScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Carbon Savings Banner
                     Surface(
                         color = Color(0xFFDCFCE7),
                         shape = RoundedCornerShape(12.dp),
@@ -364,7 +360,6 @@ fun QRVerificationResultScreen(
                 }
             }
 
-            // Pre-Completion Operational Checklist
             if (isValid) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
@@ -391,7 +386,6 @@ fun QRVerificationResultScreen(
                 }
             }
 
-            // Error Display if any
             if (uiState is ReservationUiState.Error) {
                 Surface(
                     color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
@@ -419,13 +413,12 @@ fun QRVerificationResultScreen(
                 }
             }
 
-            // Action Buttons
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 if (isValid) {
-                    // Mark as Completed Primary Button
+
                     Button(
                         onClick = {
                             viewModel.completeReservation(token, reservation.id) {}
@@ -468,7 +461,6 @@ fun QRVerificationResultScreen(
                         }
                     }
 
-                    // Scan Another QR Button
                     OutlinedButton(
                         onClick = onNavigateBack,
                         modifier = Modifier
@@ -490,7 +482,7 @@ fun QRVerificationResultScreen(
                         )
                     }
                 } else if (isPending) {
-                    // Approve Button
+
                     Button(
                         onClick = {
                             viewModel.approveReservation(token, reservation.id) {}

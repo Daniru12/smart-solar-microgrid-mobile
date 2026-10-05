@@ -11,16 +11,16 @@ import com.example.smartsolar.features.auth.models.LoginRequest
 import com.example.smartsolar.features.auth.models.AuthApiResponse
 
 interface MicrogridApiService {
-    
+
     @GET("stations")
     suspend fun getStations(): List<Station>
-    
+
     @GET("stations")
     suspend fun getActiveStations(@Query("status") status: String = "active"): List<Station>
-    
+
     @GET("stations/{id}")
     suspend fun getStationById(@Path("id") id: String): Station
-    
+
     @GET("stations/{id}/slots")
     suspend fun getStationSlots(
         @Path("id") id: String,

@@ -39,9 +39,9 @@ fun FeaturesSection() {
             fontWeight = FontWeight.Bold,
             color = CharcoalText
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Enterprise-grade tools for modern energy trading.",
             color = GrayText,
@@ -50,7 +50,6 @@ fun FeaturesSection() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Feature Cards
         FeatureCard(
             title = "Real-Time Tracking",
             description = "Monitor energy flow and storage levels across the microgrid with millisecond precision.",

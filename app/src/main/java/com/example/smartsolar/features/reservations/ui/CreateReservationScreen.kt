@@ -115,7 +115,7 @@ fun CreateReservationScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Enterprise Grid Notice Banner
+
             Surface(
                 color = Color(0xFFDCFCE7),
                 shape = RoundedCornerShape(16.dp),
@@ -163,7 +163,6 @@ fun CreateReservationScreen(
                 }
             }
 
-            // Step 1: Microgrid Station Selection Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -223,7 +222,6 @@ fun CreateReservationScreen(
                 }
             }
 
-            // Step 2: Date Picker Card
             val calendar = remember { Calendar.getInstance() }
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -283,7 +281,6 @@ fun CreateReservationScreen(
                 }
             }
 
-            // Step 3: Time Slot Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -367,7 +364,6 @@ fun CreateReservationScreen(
                 }
             }
 
-            // Step 4: Energy Quota & Valuation Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -396,7 +392,6 @@ fun CreateReservationScreen(
                         )
                     )
 
-                    // Dynamic Revenue & CO2 Valuation
                     AnimatedVisibility(visible = energyNum > 0.0) {
                         Surface(
                             color = Color(0xFFF0FDF4),
@@ -448,7 +443,6 @@ fun CreateReservationScreen(
                 }
             }
 
-            // Summary Card (Shows when details are entered)
             AnimatedVisibility(visible = isValid) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -479,7 +473,6 @@ fun CreateReservationScreen(
                 }
             }
 
-            // Submit Button
             Button(
                 onClick = {
                     try {

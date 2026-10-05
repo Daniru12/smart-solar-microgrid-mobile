@@ -119,9 +119,6 @@ fun ProsumerDashboardScreen(
     }
 }
 
-/**
- * Real-time Microgrid ERP status ticker ribbon
- */
 @Composable
 fun MicrogridStatusTicker() {
     val scrollState = rememberScrollState()
@@ -178,9 +175,6 @@ fun TickerPill(icon: ImageVector, text: String, badgeColor: Color, textColor: Co
     }
 }
 
-/**
- * Header and Identity card with Prosumer ERP account balance and metrics
- */
 @Composable
 fun ProsumerHeader(name: String, nic: String) {
     val displayName = name.ifBlank { "Prosumer" }
@@ -207,7 +201,6 @@ fun ProsumerHeader(name: String, nic: String) {
             modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
         )
 
-        // ERP Identity & Financial Ledger Card
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             shape = RoundedCornerShape(20.dp),
@@ -279,7 +272,6 @@ fun ProsumerHeader(name: String, nic: String) {
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
                 )
 
-                // ERP Financial and Solar Credit Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -318,9 +310,6 @@ fun ProsumerHeader(name: String, nic: String) {
     }
 }
 
-/**
- * Real-time Microgrid Power Flow ERP Card
- */
 @Composable
 fun LivePowerFlowCard() {
     Card(
@@ -367,7 +356,6 @@ fun LivePowerFlowCard() {
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 4-Node ERP Power Flow Grid
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 PowerNodeBox(
                     title = "Solar PV",
@@ -408,7 +396,6 @@ fun LivePowerFlowCard() {
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Grid Autonomy Progress
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -471,9 +458,6 @@ fun PowerNodeBox(
     }
 }
 
-/**
- * 4 ERP Key Performance Indicator (KPI) Summary Cards
- */
 @Composable
 fun ProsumerSummaryCards(
     stationsState: UiState<List<Station>>,
@@ -523,9 +507,6 @@ fun ProsumerSummaryCards(
     }
 }
 
-/**
- * Enhanced Summary Card, backward-compatible with OperatorDashboardScreen
- */
 @Composable
 fun SummaryCard(
     title: String,
@@ -582,9 +563,6 @@ fun SummaryCard(
     }
 }
 
-/**
- * ERP Quick Actions Dock
- */
 @Composable
 fun ProsumerQuickActions(
     onNavigateToStations: () -> Unit,
@@ -604,9 +582,6 @@ fun ProsumerQuickActions(
     }
 }
 
-/**
- * Enhanced Quick Action Button, backward-compatible with OperatorDashboardScreen
- */
 @Composable
 fun QuickActionButton(
     title: String,
@@ -637,9 +612,6 @@ fun QuickActionButton(
     }
 }
 
-/**
- * Weekly Solar Energy Yield & Grid Trading Analytics Mini-Chart (ERP Feature)
- */
 @Composable
 fun EnergyYieldMiniChart() {
     Card(
@@ -675,7 +647,6 @@ fun EnergyYieldMiniChart() {
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // 7-day Bar Visualizer
             val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
             val heights = listOf(0.65f, 0.78f, 1.0f, 0.88f, 0.72f, 0.82f, 0.91f)
             val kwhValues = listOf("24.2", "28.6", "34.2", "30.1", "26.4", "29.0", "31.5")
@@ -723,9 +694,6 @@ fun EnergyYieldMiniChart() {
     }
 }
 
-/**
- * Upcoming Reservation Card with Smart ERP Dispatcher empty state
- */
 @Composable
 fun UpcomingReservationCard(
     reservation: Reservation?,
@@ -748,7 +716,7 @@ fun UpcomingReservationCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         if (reservation == null) {
-            // High-Impact Smart Dispatch Recommendation Card (Eliminates the empty appearance)
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -798,7 +766,7 @@ fun UpcomingReservationCard(
                 }
             }
         } else {
-            // Active Boarding Pass Card
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -858,9 +826,6 @@ fun UpcomingReservationCard(
     }
 }
 
-/**
- * Available Microgrid Fleet Preview
- */
 @Composable
 fun AvailableStationsPreview(
     stationsState: UiState<List<Station>>,
@@ -972,9 +937,6 @@ fun StationPreviewItem(name: String, capacity: String, slots: Int, onViewDetails
     }
 }
 
-/**
- * Recent Activity & Transfer Audit Ledger
- */
 @Composable
 fun RecentActivityList(activities: List<Reservation>) {
     Column {
@@ -988,7 +950,7 @@ fun RecentActivityList(activities: List<Reservation>) {
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 if (activities.isEmpty()) {
-                    // Fallback ERP Ledger items so the user never sees a bare void
+
                     AuditLogItem(
                         title = "Grid Connection Initialized",
                         location = "Microgrid Central Node LK-01",

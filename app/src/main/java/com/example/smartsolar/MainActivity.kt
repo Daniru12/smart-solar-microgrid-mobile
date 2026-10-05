@@ -52,35 +52,34 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 
-// ---- Navigation sealed class ----
 sealed class Screen {
-    // Auth
+
     object Login : Screen()
     object Register : Screen()
-    // Prosumer app shell
+
     object ProsumerHome : Screen()
     object ProsumerStations : Screen()
     object ProsumerBookings : Screen()
     object ProsumerHistory : Screen()
     object ProsumerProfile : Screen()
-    // Prosumer detail screens
+
     data class StationDetails(val stationId: String) : Screen()
     data class CreateReservation(val preselectedStationId: String? = null) : Screen()
     data class ReservationDetails(val reservation: Reservation) : Screen()
     data class ModifyReservation(val reservation: Reservation) : Screen()
     data class QRDisplay(val reservation: Reservation) : Screen()
-    // Operator app shell
+
     object OperatorHome : Screen()
     object OperatorStations : Screen()
     object OperatorBookings : Screen()
     object OperatorScan : Screen()
     object OperatorProfile : Screen()
-    // Backoffice app shell
+
     object BackofficeHome : Screen()
-    // Operator detail
+
     data class OperatorReservationDetails(val reservation: Reservation) : Screen()
     data class QRVerificationResult(val reservation: Reservation) : Screen()
-    // Shared
+
     object Settings : Screen()
     data class EditProfile(val profile: com.example.smartsolar.features.auth.models.ProsumerProfile) : Screen()
 }
@@ -104,7 +103,6 @@ class MainActivity : ComponentActivity() {
 fun SmartSolarApp(settingsRepository: SettingsRepository) {
     val context = LocalContext.current
 
-    // State
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Login) }
     var activeRole by remember { mutableStateOf("") }
     var isLoggedIn by remember { mutableStateOf(false) }
@@ -112,14 +110,12 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
     var prosumerNic by remember { mutableStateOf("") }
     var prosumerName by remember { mutableStateOf("") }
 
-    // Prosumer tab state
     var prosumerTabIndex by remember { mutableStateOf(0) }
-    // Operator tab state
+
     var operatorTabIndex by remember { mutableStateOf(0) }
-    // Backoffice tab state
+
     var backofficeTabIndex by remember { mutableStateOf(0) }
 
-    // ViewModels
     val authViewModel = remember {
         AuthViewModel(AuthRepository(NetworkModule.microgridApiService))
     }
@@ -158,7 +154,6 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         NavItem("Officer", Icons.Filled.AdminPanelSettings, Icons.Outlined.AdminPanelSettings)
     )
 
-    // Handle login success
     val authState by authViewModel.authState.collectAsState()
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -178,7 +173,6 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         }
     }
 
-    // Logout helper
     fun logout() {
         isLoggedIn = false
         authToken = ""
@@ -192,7 +186,6 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         currentScreen = Screen.Login
     }
 
-    // ---- Full-screen overlays (Settings, Register, Edit Profile) ----
     when (currentScreen) {
         is Screen.Settings -> {
             SettingsScreen(
@@ -235,9 +228,9 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         is Screen.QRDisplay -> {
             QRDisplayScreen(
                 reservation = (currentScreen as Screen.QRDisplay).reservation,
-                onNavigateBack = { 
+                onNavigateBack = {
                     prosumerTabIndex = 2
-                    currentScreen = Screen.ProsumerHome 
+                    currentScreen = Screen.ProsumerHome
                 }
             )
             return
@@ -249,9 +242,9 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 viewModel = reservationViewModel,
                 microgridViewModel = microgridViewModel,
                 isOperator = false,
-                onNavigateBack = { 
+                onNavigateBack = {
                     prosumerTabIndex = 2
-                    currentScreen = Screen.ProsumerHome 
+                    currentScreen = Screen.ProsumerHome
                 },
                 onModify = { res -> currentScreen = Screen.ModifyReservation(res) },
                 onViewQR = { res -> currentScreen = Screen.QRDisplay(res) },
@@ -298,9 +291,9 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                     prosumerTabIndex = 2
                     currentScreen = Screen.ProsumerHome
                 },
-                onNavigateBack = { 
+                onNavigateBack = {
                     prosumerTabIndex = 2
-                    currentScreen = Screen.ProsumerHome 
+                    currentScreen = Screen.ProsumerHome
                 }
             )
             return
@@ -343,17 +336,15 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         else -> {}
     }
 
-    // ---- Login screen (no nav bar) ----
     if (!isLoggedIn) {
         LoginScreen(
             viewModel = authViewModel,
-            onLoginSuccess = { /* handled by LaunchedEffect above */ },
+            onLoginSuccess = {  },
             onNavigateToRegister = { currentScreen = Screen.Register }
         )
         return
     }
 
-    // ---- Role-based main app scaffold ----
     val isProsumer = activeRole.equals("Prosumer", ignoreCase = true)
     val isBackoffice = activeRole.equals("Backoffice", ignoreCase = true)
 

@@ -7,8 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkModule {
-    
-    // 10.0.2.2 connects directly to host PC in emulator; 10.89.18.86 connects over Wi-Fi on physical phones
+
     private val isEmulator: Boolean = (Build.FINGERPRINT.startsWith("generic")
             || Build.FINGERPRINT.startsWith("unknown")
             || Build.MODEL.contains("google_sdk")
@@ -43,7 +42,6 @@ object NetworkModule {
         retrofit.create(com.example.smartsolar.features.backoffice.network.BackofficeApiService::class.java)
     }
 
-    // Auth token stored in memory during the session
     var authToken: String = ""
     fun bearerToken() = "Bearer $authToken"
 }

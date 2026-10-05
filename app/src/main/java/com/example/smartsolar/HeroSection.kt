@@ -29,7 +29,7 @@ fun HeroSection() {
             .fillMaxWidth()
             .padding(24.dp)
     ) {
-        // Tagline badge
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -54,7 +54,6 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Main Title
         Text(
             text = "Smart Energy.\nSmarter Microgrids.",
             fontSize = 36.sp,
@@ -65,7 +64,6 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Subtitle
         Text(
             text = "A smart platform that connects solar prosumers, grid operators and microgrid stations to simplify energy-slot reservations.",
             color = GrayText,
@@ -75,7 +73,6 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Buttons
         Button(
             onClick = { },
             modifier = Modifier
@@ -107,7 +104,6 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Stats Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -119,7 +115,6 @@ fun HeroSection() {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // 3D Scene Placeholder (White Card)
         Box(
             modifier = Modifier
                 .fillMaxWidth()

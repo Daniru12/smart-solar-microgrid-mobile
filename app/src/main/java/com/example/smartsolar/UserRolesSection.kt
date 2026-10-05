@@ -33,7 +33,7 @@ fun UserRolesSection() {
             .padding(horizontal = 24.dp, vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Tagline badge
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -119,7 +119,7 @@ fun UserRoleCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: S
                 Text(text = subtitle, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = LimeAccent, letterSpacing = 1.sp)
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = desc, color = GrayText, fontSize = 14.sp, lineHeight = 20.sp)
         Spacer(modifier = Modifier.height(24.dp))

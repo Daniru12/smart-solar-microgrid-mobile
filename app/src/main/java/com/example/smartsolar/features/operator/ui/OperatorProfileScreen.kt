@@ -53,7 +53,7 @@ fun OperatorProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Operator Hero Card
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,7 +100,6 @@ fun OperatorProfileScreen(
                 }
             }
 
-            // Infrastructure Privileges Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),

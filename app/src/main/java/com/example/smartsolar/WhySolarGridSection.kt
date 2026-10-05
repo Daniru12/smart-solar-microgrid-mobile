@@ -38,7 +38,7 @@ fun WhySolarGridSection() {
             .padding(horizontal = 24.dp, vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Tagline badge
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

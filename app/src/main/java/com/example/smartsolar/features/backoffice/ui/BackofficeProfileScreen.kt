@@ -43,7 +43,7 @@ fun BackofficeProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Officer Hero Badge Card
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -99,7 +99,6 @@ fun BackofficeProfileScreen(
             }
         }
 
-        // Authority Breakdown
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
@@ -140,7 +139,6 @@ fun BackofficeProfileScreen(
             }
         }
 
-        // Host Endpoint Information
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -163,7 +161,6 @@ fun BackofficeProfileScreen(
 
         Spacer(Modifier.weight(1f))
 
-        // Logout Button
         Button(
             onClick = { showLogoutDialog = true },
             modifier = Modifier

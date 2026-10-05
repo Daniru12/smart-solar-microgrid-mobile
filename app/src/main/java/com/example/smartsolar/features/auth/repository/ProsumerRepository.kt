@@ -22,7 +22,7 @@ class ProsumerRepository(private val api: ProsumerApiService, private val dbHelp
             }
             remoteProfile
         } catch (e: Exception) {
-            dbHelper.getProfile() // Fallback to local cache if network fails
+            dbHelper.getProfile()
         }
     }
 

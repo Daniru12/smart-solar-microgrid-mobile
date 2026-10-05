@@ -33,7 +33,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 }
         }
     }
-    
+
     fun resetState() {
         _authState.value = AuthState.Idle
     }

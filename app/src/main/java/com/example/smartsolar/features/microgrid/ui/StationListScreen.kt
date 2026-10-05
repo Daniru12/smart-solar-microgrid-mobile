@@ -174,7 +174,7 @@ fun StationListScreen(
                             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            // Fleet Telemetry Summary Banner
+
                             item {
                                 FleetSummaryCard(
                                     activeCount = activeCount,
@@ -184,7 +184,6 @@ fun StationListScreen(
                                 )
                             }
 
-                            // Search and Filter Bar
                             item {
                                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                     OutlinedTextField(
@@ -210,7 +209,6 @@ fun StationListScreen(
                                         )
                                     )
 
-                                    // Filter chips
                                     val filterChips = listOf("All", "Active", "High Power")
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -347,7 +345,7 @@ fun EnhancedStationCard(
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
-            // Top Row: Icon + Name + Online Status Pill
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -419,7 +417,6 @@ fun EnhancedStationCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Specs Grid (Capacity, Storage, Slots)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -459,7 +456,6 @@ fun EnhancedStationCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Action Buttons Row
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(
                     onClick = onViewDetails,

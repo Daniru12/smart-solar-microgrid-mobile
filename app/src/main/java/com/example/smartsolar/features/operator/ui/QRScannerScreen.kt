@@ -153,7 +153,7 @@ fun QRScannerScreen(
                         },
                         modifier = Modifier.fillMaxSize()
                     )
-                    // Overlay
+
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Surface(shape = RoundedCornerShape(16.dp), color = Color.Black.copy(alpha = 0.5f)) {
                             Text(

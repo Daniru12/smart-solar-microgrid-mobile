@@ -44,9 +44,9 @@ fun CallToActionSection() {
                 textAlign = TextAlign.Center,
                 lineHeight = 40.sp
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 text = "Manage microgrid stations, energy slots, reservations, and energy-transfer activities through one connected platform.",
                 color = CharcoalText.copy(alpha = 0.7f),
@@ -55,9 +55,9 @@ fun CallToActionSection() {
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Spacer(modifier = Modifier.height(40.dp))
-            
+
             Button(
                 onClick = { },
                 modifier = Modifier

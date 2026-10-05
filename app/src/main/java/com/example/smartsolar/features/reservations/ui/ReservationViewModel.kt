@@ -46,7 +46,7 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
         viewModelScope.launch {
             _isLoading.value = true
             try { _myReservations.value = repository.getByNic(token, nic) }
-            catch (e: Exception) { /* silently keep previous list */ }
+            catch (e: Exception) {  }
             finally { _isLoading.value = false }
         }
     }
@@ -86,7 +86,7 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
         viewModelScope.launch {
             _isLoading.value = true
             try { _allReservations.value = repository.getAll(token) }
-            catch (e: Exception) { /* keep previous */ }
+            catch (e: Exception) {  }
             finally { _isLoading.value = false }
         }
     }
@@ -95,7 +95,7 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
         viewModelScope.launch {
             _isLoading.value = true
             try { _pendingReservations.value = repository.getPending(token) }
-            catch (e: Exception) { /* keep previous */ }
+            catch (e: Exception) {  }
             finally { _isLoading.value = false }
         }
     }
@@ -103,7 +103,7 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
     fun loadDashboardSummary(token: String) {
         viewModelScope.launch {
             try { _dashboardSummary.value = repository.getDashboardSummary(token) }
-            catch (e: Exception) { /* ignore dashboard load errors */ }
+            catch (e: Exception) {  }
         }
     }
 

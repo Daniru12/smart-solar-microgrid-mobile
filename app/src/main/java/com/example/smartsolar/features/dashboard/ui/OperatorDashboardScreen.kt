@@ -55,7 +55,6 @@ fun OperatorDashboardScreen(
         }
     }
 
-    // When stations load successfully, load slots for the first active station
     LaunchedEffect(stationsState) {
         if (stationsState is UiState.Success) {
             val activeStation = (stationsState as UiState.Success<List<Station>>).data.firstOrNull { it.status == "Active" }
@@ -204,7 +203,7 @@ fun StationOverviewCard(stationsState: UiState<List<Station>>) {
     Column {
         Text("Station Overview", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = CharcoalText)
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         when (stationsState) {
             is UiState.Loading -> {
                 Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
@@ -216,7 +215,7 @@ fun StationOverviewCard(stationsState: UiState<List<Station>>) {
             }
             is UiState.Success -> {
                 val activeStation = stationsState.data.firstOrNull { it.status == "Active" }
-                
+
                 if (activeStation == null) {
                     Text("No active stations available right now.", color = GrayText)
                 } else {
@@ -285,7 +284,7 @@ fun TodaysSlotsList(slotsState: UiState<List<EnergySlot>>) {
                 Text("See All", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             }
         }
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -303,7 +302,7 @@ fun TodaysSlotsList(slotsState: UiState<List<EnergySlot>>) {
                         Text("Failed to load slots", color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp))
                     }
                     is UiState.Success -> {
-                        val slots = slotsState.data.take(4) // Show upcoming 4 slots
+                        val slots = slotsState.data.take(4)
                         if (slots.isEmpty()) {
                             Text("No slots available today.", color = GrayText, modifier = Modifier.padding(16.dp))
                         } else {
@@ -347,7 +346,7 @@ fun PendingReservationsList(pendingReservations: List<Reservation>) {
     Column {
         Text("Pending Reservations", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = CharcoalText)
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         if (pendingReservations.isEmpty()) {
             Text("No pending reservations.", color = GrayText)
         } else {

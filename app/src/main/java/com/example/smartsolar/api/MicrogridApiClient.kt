@@ -43,12 +43,12 @@ class MicrogridApiClient {
             val url = URL("$BASE_URL/stations?status=active")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            
+
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
                 val response = reader.readText()
                 val jsonArray = JSONArray(response)
-                
+
                 for (i in 0 until jsonArray.length()) {
                     val obj = jsonArray.getJSONObject(i)
                     stations.add(
@@ -84,12 +84,12 @@ class MicrogridApiClient {
             val url = URL(urlString)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            
+
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
                 val response = reader.readText()
                 val jsonArray = JSONArray(response)
-                
+
                 for (i in 0 until jsonArray.length()) {
                     val obj = jsonArray.getJSONObject(i)
                     slots.add(

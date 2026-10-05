@@ -61,7 +61,7 @@ fun BackofficeUsersScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        // Search bar
+
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -86,7 +86,6 @@ fun BackofficeUsersScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Role filter chips
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
@@ -108,7 +107,6 @@ fun BackofficeUsersScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Total counter
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -226,7 +224,6 @@ fun UserCardItem(
                 )
             }
 
-            // Quick toggle button
             OutlinedButton(
                 onClick = onToggleStatus,
                 shape = RoundedCornerShape(10.dp),

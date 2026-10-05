@@ -69,12 +69,11 @@ fun BackofficeDashboardScreen(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        // 1. Officer Header Banner
+
         item {
             BackofficeHeader(usersCount = users.size, pendingCount = pendingReservations.size)
         }
 
-        // 2. Deactivation Alert Banner (if any pending)
         if (deactivationRequests.isNotEmpty()) {
             item {
                 Card(
@@ -118,7 +117,6 @@ fun BackofficeDashboardScreen(
             }
         }
 
-        // 3. Key Operational KPI Cards
         item {
             Text(
                 "SYSTEM OVERVIEW",
@@ -177,7 +175,6 @@ fun BackofficeDashboardScreen(
             }
         }
 
-        // 4. Quick Governance Actions
         item {
             Text(
                 "OFFICER ACTION CENTER",
@@ -210,7 +207,6 @@ fun BackofficeDashboardScreen(
             }
         }
 
-        // 5. Urgent Pending Approvals
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),

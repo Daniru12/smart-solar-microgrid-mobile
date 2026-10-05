@@ -122,14 +122,13 @@ fun MyBookingsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Overview Summary Metrics Header
+
             BookingsSummaryBanner(
                 totalCompleted = completedCount,
                 totalEnergyKwh = totalEnergy,
                 totalCreditsLkr = totalCredits
             )
 
-            // Segmented Filter Pills (High-contrast, elegant)
             BookingFilterTabs(
                 tabs = tabs,
                 counts = counts,
@@ -225,9 +224,6 @@ fun MyBookingsScreen(
     }
 }
 
-/**
- * Overview statistics banner at the top of My Bookings
- */
 @Composable
 fun BookingsSummaryBanner(
     totalCompleted: Int,
@@ -296,9 +292,6 @@ fun BookingsSummaryBanner(
     }
 }
 
-/**
- * Filter tabs rendered as high-contrast pills with counters
- */
 @Composable
 fun BookingFilterTabs(
     tabs: List<String>,
@@ -358,9 +351,6 @@ fun BookingFilterTabs(
     }
 }
 
-/**
- * High-End ERP Reservation Card
- */
 @Composable
 fun ReservationCard(
     reservation: Reservation,
@@ -391,7 +381,7 @@ fun ReservationCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
-            // Top Row: Station Icon, Station Name & Status Badge
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -457,7 +447,6 @@ fun ReservationCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Middle Data Box: Date, Time & Energy Grid
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -470,7 +459,7 @@ fun ReservationCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left Column: Date & Time
+
                     Column(modifier = Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.CalendarToday, contentDescription = null, tint = CharcoalText, modifier = Modifier.size(14.dp))
@@ -485,7 +474,6 @@ fun ReservationCard(
                         }
                     }
 
-                    // Right Column: Energy and Estimated Value
                     Column(horizontalAlignment = Alignment.End) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Bolt, contentDescription = null, tint = CharcoalText, modifier = Modifier.size(16.dp))
@@ -510,7 +498,6 @@ fun ReservationCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Bottom Footer Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -546,9 +533,6 @@ fun ReservationCard(
     }
 }
 
-/**
- * Intelligent fallback station resolver
- */
 fun resolveStationName(reservation: Reservation, stations: List<Station>): String {
     if (reservation.stationName.isNotBlank()) {
         return reservation.stationName
@@ -557,7 +541,7 @@ fun resolveStationName(reservation: Reservation, stations: List<Station>): Strin
     if (matched != null && matched.name.isNotBlank()) {
         return matched.name
     }
-    // Professional fallback
+
     val fallbackIdx = (reservation.stationId.hashCode().let { if (it < 0) -it else it } % 3) + 1
     return when (fallbackIdx) {
         1 -> "Central Solar Microgrid Hub"
@@ -566,9 +550,6 @@ fun resolveStationName(reservation: Reservation, stations: List<Station>): Strin
     }
 }
 
-/**
- * Format ISO date string into readable representation (e.g., "28 Sep 2026")
- */
 fun formatDisplayDate(dateStr: String): String {
     return try {
         if (dateStr.length >= 10) {
@@ -595,9 +576,6 @@ fun formatDisplayDate(dateStr: String): String {
     }
 }
 
-/**
- * Format time slot strings gracefully
- */
 fun formatDisplayTime(start: String, end: String): String {
     val s = start.trim()
     val e = end.trim()

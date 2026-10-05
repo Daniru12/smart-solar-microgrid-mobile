@@ -30,7 +30,7 @@ fun HowItWorksSection() {
             fontWeight = FontWeight.Bold,
             color = CharcoalText
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
 
         StepItem(
@@ -39,14 +39,14 @@ fun HowItWorksSection() {
             description = "Link your solar panels and battery storage to the microgrid network."
         )
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         StepItem(
             stepNumber = "2",
             title = "Reserve Slots",
             description = "Schedule exact time slots for energy transfer to avoid grid congestion."
         )
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         StepItem(
             stepNumber = "3",
             title = "Monitor Flow",

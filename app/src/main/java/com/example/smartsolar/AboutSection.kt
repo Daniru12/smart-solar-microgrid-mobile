@@ -25,7 +25,7 @@ fun AboutSection() {
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 40.dp)
     ) {
-        // Tagline badge
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -56,7 +56,7 @@ fun AboutSection() {
             fontWeight = FontWeight.Bold,
             color = CharcoalText
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -65,7 +65,7 @@ fun AboutSection() {
             fontSize = 16.sp,
             lineHeight = 24.sp
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(

@@ -146,7 +146,7 @@ fun QRDisplayScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Master Digital Ticket Pass Card
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -158,7 +158,7 @@ fun QRDisplayScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Ticket Top Header
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -200,7 +200,6 @@ fun QRDisplayScreen(
                             }
                         }
 
-                        // Status Badge
                         Surface(
                             shape = RoundedCornerShape(20.dp),
                             color = statusBg,
@@ -228,7 +227,6 @@ fun QRDisplayScreen(
                         }
                     }
 
-                    // QR Viewport with Corner Brackets
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 24.dp, vertical = 8.dp)
@@ -267,7 +265,6 @@ fun QRDisplayScreen(
                         }
                     }
 
-                    // Scan Ready Radar Indicator
                     Row(
                         modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -288,7 +285,6 @@ fun QRDisplayScreen(
                         )
                     }
 
-                    // Reference Code Chip
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = Color(0xFFF9FAFB),
@@ -323,7 +319,6 @@ fun QRDisplayScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Perforated Ticket Divider with Left and Right Notches
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -341,7 +336,6 @@ fun QRDisplayScreen(
                         }
                     }
 
-                    // Pass Details Grid (4 Metrics)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -389,7 +383,6 @@ fun QRDisplayScreen(
                         }
                     }
 
-                    // Green Carbon Impact Bar
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = Color(0xFFDCFCE7),
@@ -430,7 +423,6 @@ fun QRDisplayScreen(
                 }
             }
 
-            // Scanning Advice Card
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = Color(0xFFF9FAFB),
@@ -465,7 +457,6 @@ fun QRDisplayScreen(
                 }
             }
 
-            // Back to Bookings Primary Action
             Button(
                 onClick = onNavigateBack,
                 modifier = Modifier

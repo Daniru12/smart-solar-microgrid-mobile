@@ -81,7 +81,7 @@ fun CustomBottomNavigation(
         ) {
             items.forEachIndexed { index, item ->
                 val isSelected = selectedIndex == index
-                
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(24.dp))
@@ -105,7 +105,7 @@ fun CustomBottomNavigation(
                             tint = if (isSelected) activeContentColor else inactiveContentColor,
                             modifier = Modifier.size(24.dp)
                         )
-                        
+
                         AnimatedVisibility(visible = isSelected) {
                             Row {
                                 Spacer(modifier = Modifier.width(8.dp))

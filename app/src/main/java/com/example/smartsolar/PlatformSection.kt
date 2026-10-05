@@ -31,7 +31,7 @@ fun PlatformSection() {
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 40.dp)
     ) {
-        // Block 1: Microgrid Station Section
+
         PlatformBlock(
             icon = Icons.Default.BatteryChargingFull,
             title = "Manage Solar Energy Infrastructure Efficiently",
@@ -41,7 +41,6 @@ fun PlatformSection() {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // Block 2: Energy Slot Section
         PlatformBlock(
             icon = Icons.Default.DateRange,
             title = "Simple Energy Slot Management",
@@ -51,7 +50,6 @@ fun PlatformSection() {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // Block 3: Connected System Section
         Column(modifier = Modifier.fillMaxWidth()) {
             Box(
                 modifier = Modifier
@@ -71,7 +69,7 @@ fun PlatformSection() {
                 lineHeight = 34.sp
             )
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             AppCard("Web Application", "Used by Backoffice staff and Grid Operators to manage users, stations, slots, and reservations.", true)
             Spacer(modifier = Modifier.height(16.dp))
             AppCard("Mobile Application", "Used by Solar Prosumers and Grid Operators for station access, reservations, QR verification.", true)
@@ -109,7 +107,7 @@ fun PlatformBlock(icon: androidx.compose.ui.graphics.vector.ImageVector, title: 
             lineHeight = 24.sp
         )
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items.forEach { item ->
                 Row(verticalAlignment = Alignment.CenterVertically) {

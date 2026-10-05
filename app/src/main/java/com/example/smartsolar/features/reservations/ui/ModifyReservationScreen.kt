@@ -109,7 +109,7 @@ fun ModifyReservationScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Notice: 12h policy
+
             Surface(
                 color = Color(0xFFFEF3C7),
                 shape = RoundedCornerShape(16.dp),
@@ -147,7 +147,6 @@ fun ModifyReservationScreen(
                 }
             }
 
-            // Station Identity Card (Station cannot be changed after booking, only slot/date/kWh)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -175,7 +174,6 @@ fun ModifyReservationScreen(
                 }
             }
 
-            // Step 1: Change Date
             val calendar = remember { Calendar.getInstance() }
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -235,7 +233,6 @@ fun ModifyReservationScreen(
                 }
             }
 
-            // Step 2: Change Time Slot
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -314,7 +311,6 @@ fun ModifyReservationScreen(
                 }
             }
 
-            // Step 3: Energy Amount
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -383,7 +379,6 @@ fun ModifyReservationScreen(
                 }
             }
 
-            // Submit Button
             Button(
                 onClick = {
                     viewModel.updateReservation(

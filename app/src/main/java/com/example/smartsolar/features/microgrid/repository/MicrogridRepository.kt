@@ -13,14 +13,14 @@ class MicrogridRepository(
 ) {
     suspend fun getStations(): Result<List<Station>> = withContext(Dispatchers.IO) {
         try {
-            // Fetch from API
+
             val stations = apiService.getStations()
-            // Cache locally in SQLite
+
             stationDao.clearStations()
             stationDao.insertStations(stations)
             Result.success(stations)
         } catch (e: Exception) {
-            // If offline or API fails, try to load from local cache
+
             try {
                 val localStations = stationDao.getAllStations()
                 if (localStations.isNotEmpty()) {

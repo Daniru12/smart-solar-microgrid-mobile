@@ -26,12 +26,12 @@ import com.example.smartsolar.ui.theme.GrayText
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
-    onLoginSuccess: (String) -> Unit, // Passes the role back to MainActivity
+    onLoginSuccess: (String) -> Unit,
     onNavigateToRegister: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    
+
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
@@ -50,7 +50,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Logo and Header
+
         Icon(
             imageVector = Icons.Default.WbSunny,
             contentDescription = "Logo",
@@ -71,7 +71,6 @@ fun LoginScreen(
             modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
         )
 
-        // Error Message
         if (authState is AuthState.Error) {
             Surface(
                 color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
@@ -91,7 +90,6 @@ fun LoginScreen(
             }
         }
 
-        // Input Fields
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -122,10 +120,9 @@ fun LoginScreen(
             ),
             singleLine = true
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Login Button
         Button(
             onClick = { viewModel.login(LoginRequest(email, password)) },
             modifier = Modifier

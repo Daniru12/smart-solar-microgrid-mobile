@@ -25,7 +25,7 @@ fun SlotListScreen(
     onSlotSelected: (String, String, String) -> Unit
 ) {
     val state by viewModel.slotsState.collectAsState()
-    
+
     val selectedDate by remember { mutableStateOf("2026-09-25") }
 
     LaunchedEffect(stationId, selectedDate) {
@@ -89,13 +89,13 @@ fun SlotItem(slot: EnergySlot, onSelect: () -> Unit) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Capacity Available: ${slot.capacityAvailable}", color = GrayText, fontSize = 12.sp)
                 Text(
-                    text = "Status: ${slot.status}", 
+                    text = "Status: ${slot.status}",
                     color = if (slot.status == "Available") LimeAccent else DangerRed,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp
                 )
             }
-            
+
             Button(
                 onClick = onSelect,
                 enabled = slot.status == "Available",

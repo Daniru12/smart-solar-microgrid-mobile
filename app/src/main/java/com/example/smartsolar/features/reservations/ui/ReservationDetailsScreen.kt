@@ -154,7 +154,7 @@ fun ReservationDetailsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // High-Contrast ERP Status Hero Banner
+
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = statusBg,
@@ -194,7 +194,6 @@ fun ReservationDetailsScreen(
                 }
             }
 
-            // Clean Energy Dispatch Ledger Card (Boarding Pass / Certificate)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -203,7 +202,7 @@ fun ReservationDetailsScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    // Station & Node Header
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -237,7 +236,6 @@ fun ReservationDetailsScreen(
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
 
-                    // 4-Quadrant Dispatch Telemetry
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         TelemetryBox(
                             title = "ENERGY ALLOCATED",
@@ -276,7 +274,6 @@ fun ReservationDetailsScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Green Impact Badge
                     Surface(
                         color = Color(0xFFDCFCE7),
                         shape = RoundedCornerShape(12.dp),
@@ -303,7 +300,6 @@ fun ReservationDetailsScreen(
                 }
             }
 
-            // Technical & Audit Metadata Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -340,9 +336,8 @@ fun ReservationDetailsScreen(
                 }
             }
 
-            // Action Buttons Area
             if (!isOperator) {
-                // Prosumer Actions
+
                 when (reservation.status) {
                     "Approved" -> {
                         Button(
@@ -444,7 +439,7 @@ fun ReservationDetailsScreen(
                     }
                 }
             } else {
-                // Operator Actions
+
                 if (reservation.status == "Pending") {
                     Button(
                         onClick = { onApprove(reservation) },

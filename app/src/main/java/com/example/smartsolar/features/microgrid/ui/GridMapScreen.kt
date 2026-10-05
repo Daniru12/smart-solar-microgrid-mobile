@@ -22,7 +22,6 @@ fun GridMapScreen(viewModel: MicrogridViewModel, onStationSelected: (String) -> 
         (stationsState as UiState.Success).data.filter { it.status == "Active" }
     } else emptyList()
 
-    // Mocked User Location (e.g. Colombo) for demonstration
     val myLocation = LatLng(6.9271, 79.8612)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(myLocation, 12f)
@@ -32,7 +31,7 @@ fun GridMapScreen(viewModel: MicrogridViewModel, onStationSelected: (String) -> 
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState
     ) {
-        // User Location Marker
+
         Marker(
             state = MarkerState(position = myLocation),
             title = "My Location",
@@ -40,12 +39,11 @@ fun GridMapScreen(viewModel: MicrogridViewModel, onStationSelected: (String) -> 
             icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
         )
 
-        // 5km Suggestion Circle
         Circle(
             center = myLocation,
-            radius = 5000.0, // 5000 meters = 5km
-            fillColor = Color(0x334285F4), // Transparent blue
-            strokeColor = Color(0xFF4285F4), // Solid blue
+            radius = 5000.0,
+            fillColor = Color(0x334285F4),
+            strokeColor = Color(0xFF4285F4),
             strokeWidth = 4f
         )
 

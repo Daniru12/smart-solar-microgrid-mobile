@@ -84,7 +84,6 @@ fun ProsumerProfileScreen(
                     val initials = "${p.firstName?.firstOrNull() ?: "P"}${p.lastName?.firstOrNull() ?: ""}"
                     val fullName = "${p.firstName ?: ""} ${p.lastName ?: ""}".trim().ifBlank { "Smart Prosumer" }
 
-                    // Executive Avatar & Profile Hero Card
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -152,7 +151,6 @@ fun ProsumerProfileScreen(
                         }
                     }
 
-                    // Energy & Grid Contribution Ledger Card
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -189,7 +187,6 @@ fun ProsumerProfileScreen(
                         }
                     }
 
-                    // Account & Identity Information Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
@@ -234,7 +231,6 @@ fun ProsumerProfileScreen(
                         }
                     }
 
-                    // Microgrid Grid Connection Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
@@ -259,7 +255,6 @@ fun ProsumerProfileScreen(
                         }
                     }
 
-                    // Action Buttons
                     Button(
                         onClick = { onNavigateToEdit(p) },
                         modifier = Modifier
