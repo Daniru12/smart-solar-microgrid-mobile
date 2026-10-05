@@ -3,7 +3,7 @@ package com.example.smartsolar.features.microgrid.models
 import com.google.gson.annotations.SerializedName
 
 data class EnergySlot(
-    @SerializedName("id")
+    @SerializedName("slotId")
     val id: String,
     
     @SerializedName("stationId")
@@ -18,8 +18,8 @@ data class EnergySlot(
     @SerializedName("endTime")
     val endTime: String,
     
-    @SerializedName("capacityAvailable")
-    val capacityAvailable: Int,
+    @SerializedName("availableCapacity")
+    val capacityAvailable: Double,
     
     @SerializedName("status")
     val status: String // "Available", "Full", or "Inactive"

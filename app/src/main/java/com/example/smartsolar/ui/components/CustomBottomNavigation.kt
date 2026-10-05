@@ -7,15 +7,24 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookOnline
+import androidx.compose.material.icons.filled.ElectricBolt
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.BookOnline
+import androidx.compose.material.icons.outlined.ElectricBolt
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PieChart
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -28,12 +37,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.smartsolar.ui.theme.CharcoalText
-import com.example.smartsolar.ui.theme.GrayText
+
 import com.example.smartsolar.ui.theme.LimeAccent
 import com.example.smartsolar.ui.theme.SurfaceLight
 
-sealed class NavItem(
+open class NavItem(
     val title: String,
     val activeIcon: ImageVector,
     val inactiveIcon: ImageVector
@@ -50,11 +58,10 @@ fun CustomBottomNavigation(
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit
 ) {
-    // Light Theme Colors
-    val barBackground = SurfaceLight
+    val barBackground = MaterialTheme.colorScheme.surface
     val activePillBackground = LimeAccent
-    val activeContentColor = CharcoalText
-    val inactiveContentColor = GrayText
+    val activeContentColor = MaterialTheme.colorScheme.onSurface
+    val inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = Modifier

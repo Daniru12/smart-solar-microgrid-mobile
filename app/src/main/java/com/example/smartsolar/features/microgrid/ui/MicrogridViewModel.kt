@@ -23,18 +23,25 @@ class MicrogridViewModel(
     private val _stationsState = MutableStateFlow<UiState<List<Station>>>(UiState.Loading)
     val stationsState: StateFlow<UiState<List<Station>>> = _stationsState.asStateFlow()
 
+    private val _stations = MutableStateFlow<List<Station>>(emptyList())
+    val stations: StateFlow<List<Station>> = _stations.asStateFlow()
+
     private val _selectedStationState = MutableStateFlow<UiState<Station>>(UiState.Loading)
     val selectedStationState: StateFlow<UiState<Station>> = _selectedStationState.asStateFlow()
 
     private val _slotsState = MutableStateFlow<UiState<List<EnergySlot>>>(UiState.Loading)
     val slotsState: StateFlow<UiState<List<EnergySlot>>> = _slotsState.asStateFlow()
 
+    private val _slots = MutableStateFlow<List<EnergySlot>>(emptyList())
+    val slots: StateFlow<List<EnergySlot>> = _slots.asStateFlow()
+
     fun loadStations() {
         viewModelScope.launch {
             _stationsState.value = UiState.Loading
             repository.getStations()
-                .onSuccess { stations ->
-                    _stationsState.value = UiState.Success(stations)
+                .onSuccess { stationList ->
+                    _stationsState.value = UiState.Success(stationList)
+                    _stations.value = stationList
                 }
                 .onFailure { error ->
                     _stationsState.value = UiState.Error(error.message ?: "Failed to load stations")
@@ -59,8 +66,9 @@ class MicrogridViewModel(
         viewModelScope.launch {
             _slotsState.value = UiState.Loading
             repository.getStationSlots(stationId, date)
-                .onSuccess { slots ->
-                    _slotsState.value = UiState.Success(slots)
+                .onSuccess { slotList ->
+                    _slotsState.value = UiState.Success(slotList)
+                    _slots.value = slotList
                 }
                 .onFailure { error ->
                     _slotsState.value = UiState.Error(error.message ?: "Failed to load slots")

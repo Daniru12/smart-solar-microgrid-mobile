@@ -21,10 +21,14 @@ class MicrogridRepository(
             Result.success(stations)
         } catch (e: Exception) {
             // If offline or API fails, try to load from local cache
-            val localStations = stationDao.getAllStations()
-            if (localStations.isNotEmpty()) {
-                Result.success(localStations)
-            } else {
+            try {
+                val localStations = stationDao.getAllStations()
+                if (localStations.isNotEmpty()) {
+                    Result.success(localStations)
+                } else {
+                    Result.failure(e)
+                }
+            } catch (cacheException: Exception) {
                 Result.failure(e)
             }
         }
@@ -36,10 +40,14 @@ class MicrogridRepository(
             stationDao.insertStation(station)
             Result.success(station)
         } catch (e: Exception) {
-            val localStation = stationDao.getStationById(stationId)
-            if (localStation != null) {
-                Result.success(localStation)
-            } else {
+            try {
+                val localStation = stationDao.getStationById(stationId)
+                if (localStation != null) {
+                    Result.success(localStation)
+                } else {
+                    Result.failure(e)
+                }
+            } catch (cacheException: Exception) {
                 Result.failure(e)
             }
         }
