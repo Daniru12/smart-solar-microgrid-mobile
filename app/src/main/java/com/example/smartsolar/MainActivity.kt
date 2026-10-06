@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,14 +14,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.smartsolar.features.auth.local.UserDatabaseHelper
 import com.example.smartsolar.features.auth.repository.AuthRepository
 import com.example.smartsolar.features.auth.repository.ProsumerRepository
 import com.example.smartsolar.features.auth.ui.*
+import com.example.smartsolar.features.backoffice.repository.BackofficeRepository
+import com.example.smartsolar.features.backoffice.ui.*
 import com.example.smartsolar.features.dashboard.ui.OperatorDashboardScreen
 import com.example.smartsolar.features.dashboard.ui.ProsumerDashboardScreen
 import com.example.smartsolar.features.microgrid.local.StationDatabaseHelper
@@ -70,6 +75,8 @@ sealed class Screen {
     object OperatorBookings : Screen()
     object OperatorScan : Screen()
     object OperatorProfile : Screen()
+    // Backoffice app shell
+    object BackofficeHome : Screen()
     // Operator detail
     data class OperatorReservationDetails(val reservation: Reservation) : Screen()
     data class QRVerificationResult(val reservation: Reservation) : Screen()
@@ -109,6 +116,8 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
     var prosumerTabIndex by remember { mutableStateOf(0) }
     // Operator tab state
     var operatorTabIndex by remember { mutableStateOf(0) }
+    // Backoffice tab state
+    var backofficeTabIndex by remember { mutableStateOf(0) }
 
     // ViewModels
     val authViewModel = remember {
@@ -121,7 +130,10 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         ReservationViewModel(ReservationRepository(NetworkModule.reservationApiService))
     }
     val prosumerViewModel = remember {
-        ProsumerViewModel(ProsumerRepository(NetworkModule.prosumerApiService))
+        ProsumerViewModel(ProsumerRepository(NetworkModule.prosumerApiService, UserDatabaseHelper(context)))
+    }
+    val backofficeViewModel = remember {
+        BackofficeViewModel(BackofficeRepository(NetworkModule.backofficeApiService))
     }
 
     val prosumerNavItems = listOf(
@@ -138,6 +150,13 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         NavItem("Scan", Icons.Filled.QrCodeScanner, Icons.Outlined.QrCodeScanner),
         NavItem.Profile
     )
+    val backofficeNavItems = listOf(
+        NavItem("Overview", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
+        NavItem("Users", Icons.Filled.People, Icons.Outlined.People),
+        NavItem("Prosumers", Icons.Filled.AssignmentInd, Icons.Outlined.AssignmentInd),
+        NavItem("Bookings", Icons.Filled.ConfirmationNumber, Icons.Outlined.ConfirmationNumber),
+        NavItem("Officer", Icons.Filled.AdminPanelSettings, Icons.Outlined.AdminPanelSettings)
+    )
 
     // Handle login success
     val authState by authViewModel.authState.collectAsState()
@@ -150,7 +169,11 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
             NetworkModule.authToken = data.token
             prosumerNic = data.nic ?: ""
             prosumerName = data.name ?: ""
-            currentScreen = if (data.role.equals("Prosumer", ignoreCase = true)) Screen.ProsumerHome else Screen.OperatorHome
+            currentScreen = when {
+                data.role.equals("Prosumer", ignoreCase = true) -> Screen.ProsumerHome
+                data.role.equals("Backoffice", ignoreCase = true) -> Screen.BackofficeHome
+                else -> Screen.OperatorHome
+            }
             authViewModel.resetState()
         }
     }
@@ -165,6 +188,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         NetworkModule.authToken = ""
         prosumerTabIndex = 0
         operatorTabIndex = 0
+        backofficeTabIndex = 0
         currentScreen = Screen.Login
     }
 
@@ -223,6 +247,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 reservation = (currentScreen as Screen.ReservationDetails).reservation,
                 token = authToken,
                 viewModel = reservationViewModel,
+                microgridViewModel = microgridViewModel,
                 isOperator = false,
                 onNavigateBack = { 
                     prosumerTabIndex = 2
@@ -286,11 +311,18 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 reservation = res,
                 token = authToken,
                 viewModel = reservationViewModel,
+                microgridViewModel = microgridViewModel,
                 isOperator = true,
                 onNavigateBack = { currentScreen = Screen.OperatorBookings },
                 onModify = {},
                 onViewQR = {},
-                onComplete = { r -> currentScreen = Screen.QRVerificationResult(r) }
+                onComplete = { r -> currentScreen = Screen.QRVerificationResult(r) },
+                onApprove = { r ->
+                    reservationViewModel.approveReservation(authToken, r.id) {
+                        Toast.makeText(context, "Reservation Approved!", Toast.LENGTH_SHORT).show()
+                        currentScreen = Screen.OperatorBookings
+                    }
+                }
             )
             return
         }
@@ -323,18 +355,45 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
 
     // ---- Role-based main app scaffold ----
     val isProsumer = activeRole.equals("Prosumer", ignoreCase = true)
-    val navItems = if (isProsumer) prosumerNavItems else operatorNavItems
-    val tabIndex = if (isProsumer) prosumerTabIndex else operatorTabIndex
+    val isBackoffice = activeRole.equals("Backoffice", ignoreCase = true)
+
+    val navItems = when {
+        isProsumer -> prosumerNavItems
+        isBackoffice -> backofficeNavItems
+        else -> operatorNavItems
+    }
+    val tabIndex = when {
+        isProsumer -> prosumerTabIndex
+        isBackoffice -> backofficeTabIndex
+        else -> operatorTabIndex
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.WbSunny, "Logo", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(26.dp))
+                        val headerAccent = MaterialTheme.colorScheme.primary
+                        Icon(
+                            if (isBackoffice) Icons.Default.AdminPanelSettings else Icons.Default.WbSunny,
+                            "Logo",
+                            tint = headerAccent,
+                            modifier = Modifier.size(26.dp)
+                        )
                         Spacer(Modifier.width(8.dp))
                         Text("Solar", color = CharcoalText, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                        Text("Grid", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        Text("Grid", color = headerAccent, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        if (isBackoffice) {
+                            Spacer(Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(6.dp))
+                                    .background(com.example.smartsolar.ui.theme.LimeAccent)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text("OFFICER", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = CharcoalText)
+                            }
+                        }
                     }
                 },
                 actions = {
@@ -350,7 +409,11 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 items = navItems,
                 selectedIndex = tabIndex,
                 onItemSelected = { idx ->
-                    if (isProsumer) prosumerTabIndex = idx else operatorTabIndex = idx
+                    when {
+                        isProsumer -> prosumerTabIndex = idx
+                        isBackoffice -> backofficeTabIndex = idx
+                        else -> operatorTabIndex = idx
+                    }
                 }
             )
         },
@@ -374,6 +437,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                     1 -> StationListScreen(viewModel = microgridViewModel, onStationSelected = { stationId -> currentScreen = Screen.StationDetails(stationId) })
                     2 -> MyBookingsScreen(
                         viewModel = reservationViewModel,
+                        microgridViewModel = microgridViewModel,
                         token = authToken,
                         nic = prosumerNic,
                         onReservationClick = { res -> currentScreen = Screen.ReservationDetails(res) },
@@ -381,6 +445,7 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                     )
                     3 -> BookingHistoryScreen(
                         viewModel = reservationViewModel,
+                        microgridViewModel = microgridViewModel,
                         token = authToken,
                         nic = prosumerNic,
                         onReservationClick = { res -> currentScreen = Screen.ReservationDetails(res) }
@@ -389,6 +454,35 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                         viewModel = prosumerViewModel,
                         token = authToken,
                         onNavigateToEdit = { profile -> currentScreen = Screen.EditProfile(profile) },
+                        onLogout = { logout() }
+                    )
+                }
+            } else if (isBackoffice) {
+                when (backofficeTabIndex) {
+                    0 -> BackofficeDashboardScreen(
+                        backofficeViewModel = backofficeViewModel,
+                        microgridViewModel = microgridViewModel,
+                        reservationViewModel = reservationViewModel,
+                        token = authToken,
+                        onNavigateToUsers = { backofficeTabIndex = 1 },
+                        onNavigateToProsumers = { backofficeTabIndex = 2 },
+                        onNavigateToBookings = { backofficeTabIndex = 3 }
+                    )
+                    1 -> BackofficeUsersScreen(
+                        viewModel = backofficeViewModel,
+                        token = authToken
+                    )
+                    2 -> BackofficeProsumersScreen(
+                        viewModel = backofficeViewModel,
+                        token = authToken
+                    )
+                    3 -> BackofficeReservationsScreen(
+                        viewModel = reservationViewModel,
+                        token = authToken
+                    )
+                    4 -> BackofficeProfileScreen(
+                        token = authToken,
+                        role = activeRole,
                         onLogout = { logout() }
                     )
                 }

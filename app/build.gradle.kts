@@ -72,6 +72,10 @@ dependencies {
     // ML Kit Barcode Scanning (for QR Scanner)
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
+    // Google Maps Compose
+    implementation("com.google.maps.android:maps-compose:4.3.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

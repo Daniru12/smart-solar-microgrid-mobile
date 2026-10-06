@@ -61,13 +61,28 @@ interface ReservationApiService {
     @PUT("reservations/{id}/cancel")
     suspend fun cancel(
         @Header("Authorization") token: String,
-        @Path("id") id: String
+        @Path("id") id: String,
+        @Body body: Any = Any()
     ): ApiResponse<Reservation>
 
     @PUT("reservations/{id}/approve")
     suspend fun approve(
         @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Body body: Any = Any()
+    ): ApiResponse<Reservation>
+
+    @GET("reservations/{id}/validate-qr")
+    suspend fun validateQr(
+        @Header("Authorization") token: String,
         @Path("id") id: String
+    ): ApiResponse<Reservation>
+
+    @PUT("reservations/{id}/complete")
+    suspend fun complete(
+        @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Body body: Any = Any()
     ): ApiResponse<Reservation>
 }
 

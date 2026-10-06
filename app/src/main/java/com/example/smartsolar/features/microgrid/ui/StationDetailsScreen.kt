@@ -98,6 +98,16 @@ fun StationDetailsScreen(
                         modifier = Modifier.padding(horizontal = 24.dp).padding(top = 8.dp, bottom = 4.dp)
                     )
 
+                    if (!station.gridOperatorName.isNullOrEmpty()) {
+                        Text(
+                            text = "Operator: ${station.gridOperatorName}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = LimeAccent,
+                            modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 8.dp)
+                        )
+                    }
+
                     // Tabs
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),

@@ -50,4 +50,12 @@ class ReservationRepository(private val api: ReservationApiService) {
     suspend fun approve(token: String, id: String): Reservation? {
         return api.approve(token, id).data
     }
+
+    suspend fun validateQr(token: String, id: String): Reservation? {
+        return api.validateQr(token, id).data
+    }
+
+    suspend fun complete(token: String, id: String): Reservation? {
+        return api.complete(token, id).data
+    }
 }

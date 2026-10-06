@@ -69,6 +69,19 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
         }
     }
 
+    fun validateQr(token: String, id: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                _selectedReservation.value = repository.validateQr(token, id)
+            } catch (e: Exception) {
+                _uiState.value = ReservationUiState.Error(e.message ?: "QR Validation failed")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun loadAll(token: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -151,7 +164,24 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
             try {
                 val result = repository.approve(token, id)
                 if (result != null) {
-                    _uiState.value = ReservationUiState.Success("Reservation completed!")
+                    _uiState.value = ReservationUiState.Success("Reservation approved!")
+                    onSuccess()
+                } else {
+                    _uiState.value = ReservationUiState.Error("Failed to approve reservation.")
+                }
+            } catch (e: Exception) {
+                _uiState.value = ReservationUiState.Error(e.message ?: "An error occurred.")
+            }
+        }
+    }
+
+    fun completeReservation(token: String, id: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = ReservationUiState.Loading
+            try {
+                val result = repository.complete(token, id)
+                if (result != null) {
+                    _uiState.value = ReservationUiState.Success("Energy transfer completed!")
                     onSuccess()
                 } else {
                     _uiState.value = ReservationUiState.Error("Failed to complete reservation.")

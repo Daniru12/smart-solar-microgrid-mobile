@@ -11,6 +11,9 @@ data class Station(
     
     @SerializedName("address")
     val address: String,
+
+    @SerializedName("gridOperatorName")
+    val gridOperatorName: String?,
     
     @SerializedName("latitude")
     val latitude: Double,
