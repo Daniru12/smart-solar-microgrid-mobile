@@ -109,6 +109,9 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
     var authToken by remember { mutableStateOf("") }
     var prosumerNic by remember { mutableStateOf("") }
     var prosumerName by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
+    var userStationId by remember { mutableStateOf("") }
 
     var prosumerTabIndex by remember { mutableStateOf(0) }
 
@@ -164,6 +167,9 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
             NetworkModule.authToken = data.token
             prosumerNic = data.nic ?: ""
             prosumerName = data.name ?: ""
+            userEmail = data.email ?: ""
+            userName = data.name ?: ""
+            userStationId = data.stationId ?: ""
             currentScreen = when {
                 data.role.equals("Prosumer", ignoreCase = true) -> Screen.ProsumerHome
                 data.role.equals("Backoffice", ignoreCase = true) -> Screen.BackofficeHome
@@ -179,6 +185,9 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         activeRole = ""
         prosumerNic = ""
         prosumerName = ""
+        userEmail = ""
+        userName = ""
+        userStationId = ""
         NetworkModule.authToken = ""
         prosumerTabIndex = 0
         operatorTabIndex = 0
@@ -195,7 +204,13 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                     Toast.makeText(context, "Cache cleared", Toast.LENGTH_SHORT).show()
                 },
                 onNavigateBack = {
-                    currentScreen = if (activeRole.equals("Prosumer", ignoreCase = true)) Screen.ProsumerProfile else Screen.OperatorProfile
+                    if (activeRole.equals("Prosumer", ignoreCase = true)) {
+                        prosumerTabIndex = 4
+                        currentScreen = Screen.ProsumerHome
+                    } else {
+                        operatorTabIndex = 4
+                        currentScreen = Screen.OperatorHome
+                    }
                 }
             )
             return
@@ -270,11 +285,22 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
         }
         is Screen.StationDetails -> {
             val stationId = (currentScreen as Screen.StationDetails).stationId
+            val isOperator = activeRole.equals("Operator", ignoreCase = true) || activeRole.equals("GridOperator", ignoreCase = true)
             com.example.smartsolar.features.microgrid.ui.StationDetailsScreen(
                 stationId = stationId,
                 viewModel = microgridViewModel,
+                isOperator = isOperator,
+                operatorEmail = userEmail,
+                operatorName = userName,
+                operatorStationId = userStationId,
                 onViewSlotsClicked = { currentScreen = Screen.CreateReservation(stationId) },
-                onNavigateBack = { currentScreen = Screen.ProsumerHome }
+                onNavigateBack = {
+                    if (isOperator) {
+                        currentScreen = Screen.OperatorHome
+                    } else {
+                        currentScreen = Screen.ProsumerHome
+                    }
+                }
             )
             return
         }
@@ -306,14 +332,19 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 viewModel = reservationViewModel,
                 microgridViewModel = microgridViewModel,
                 isOperator = true,
-                onNavigateBack = { currentScreen = Screen.OperatorBookings },
+                onNavigateBack = {
+                    operatorTabIndex = 2
+                    currentScreen = Screen.OperatorHome
+                },
                 onModify = {},
                 onViewQR = {},
                 onComplete = { r -> currentScreen = Screen.QRVerificationResult(r) },
                 onApprove = { r ->
                     reservationViewModel.approveReservation(authToken, r.id) {
                         Toast.makeText(context, "Reservation Approved!", Toast.LENGTH_SHORT).show()
-                        currentScreen = Screen.OperatorBookings
+                        operatorTabIndex = 2
+                        currentScreen = Screen.OperatorHome
+                        reservationViewModel.loadAll(authToken)
                     }
                 }
             )
@@ -327,9 +358,25 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                 viewModel = reservationViewModel,
                 onComplete = {
                     Toast.makeText(context, "Energy Transfer Completed!", Toast.LENGTH_SHORT).show()
+                    reservationViewModel.clearSelectedReservation()
+                    reservationViewModel.resetState()
+                    operatorTabIndex = 2
                     currentScreen = Screen.OperatorHome
+                    reservationViewModel.loadAll(authToken)
                 },
-                onNavigateBack = { currentScreen = Screen.OperatorScan }
+                onNavigateBack = {
+                    reservationViewModel.clearSelectedReservation()
+                    reservationViewModel.resetState()
+                    operatorTabIndex = 2
+                    currentScreen = Screen.OperatorHome
+                    reservationViewModel.loadAll(authToken)
+                },
+                onScanAnother = {
+                    reservationViewModel.clearSelectedReservation()
+                    reservationViewModel.resetState()
+                    operatorTabIndex = 3
+                    currentScreen = Screen.OperatorHome
+                }
             )
             return
         }
@@ -483,11 +530,23 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                         viewModel = microgridViewModel,
                         reservationViewModel = reservationViewModel,
                         token = authToken,
+                        operatorEmail = userEmail,
+                        operatorName = userName,
+                        operatorStationId = userStationId,
                         onNavigateToStations = { operatorTabIndex = 1 },
                         onNavigateToBookings = { operatorTabIndex = 2 },
-                        onNavigateToScan = { operatorTabIndex = 3 }
+                        onNavigateToScan = { operatorTabIndex = 3 },
+                        onViewStation = { stationId -> currentScreen = Screen.StationDetails(stationId) },
+                        onViewSlots = { stationId -> currentScreen = Screen.StationDetails(stationId) }
                     )
-                    1 -> StationListScreen(viewModel = microgridViewModel, onStationSelected = {})
+                    1 -> StationListScreen(
+                        viewModel = microgridViewModel,
+                        isOperator = true,
+                        operatorEmail = userEmail,
+                        operatorName = userName,
+                        operatorStationId = userStationId,
+                        onStationSelected = { stationId -> currentScreen = Screen.StationDetails(stationId) }
+                    )
                     2 -> OperatorBookingsScreen(
                         viewModel = reservationViewModel,
                         token = authToken,
@@ -497,7 +556,11 @@ fun SmartSolarApp(settingsRepository: SettingsRepository) {
                         viewModel = reservationViewModel,
                         token = authToken,
                         onQRScanned = { res -> currentScreen = Screen.QRVerificationResult(res) },
-                        onNavigateBack = { operatorTabIndex = 0 }
+                        onNavigateBack = {
+                            reservationViewModel.clearSelectedReservation()
+                            reservationViewModel.resetState()
+                            operatorTabIndex = 0
+                        }
                     )
                     4 -> OperatorProfileScreen(
                         token = authToken,

@@ -2,6 +2,7 @@ package com.example.smartsolar.features.microgrid.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartsolar.features.microgrid.models.CreateSlotRequest
 import com.example.smartsolar.features.microgrid.models.EnergySlot
 import com.example.smartsolar.features.microgrid.models.Station
 import com.example.smartsolar.features.microgrid.repository.MicrogridRepository
@@ -72,6 +73,72 @@ class MicrogridViewModel(
                 }
                 .onFailure { error ->
                     _slotsState.value = UiState.Error(error.message ?: "Failed to load slots")
+                }
+        }
+    }
+
+    fun createSlot(
+        stationId: String,
+        request: CreateSlotRequest,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            repository.createSlot(stationId, request)
+                .onSuccess {
+                    loadSlots(stationId)
+                    onSuccess()
+                }
+                .onFailure { error ->
+                    onError(error.message ?: "Failed to create slot")
+                }
+        }
+    }
+
+    fun updateSlotStatus(
+        stationId: String,
+        slotId: String,
+        newStatus: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            repository.updateSlotStatus(slotId, newStatus)
+                .onSuccess {
+                    loadSlots(stationId)
+                    onSuccess()
+                }
+                .onFailure { error ->
+                    onError(error.message ?: "Failed to update slot")
+                }
+        }
+    }
+
+    fun deleteSlot(
+        stationId: String,
+        slotId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        updateSlotStatus(stationId, slotId, "Deleted", onSuccess, onError)
+    }
+
+    fun toggleStationStatus(
+        stationId: String,
+        currentStatus: String,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val newStatus = if (currentStatus.equals("Active", ignoreCase = true)) "Inactive" else "Active"
+        viewModelScope.launch {
+            repository.updateStationStatus(stationId, newStatus)
+                .onSuccess {
+                    loadStationDetails(stationId)
+                    loadStations()
+                    onSuccess(newStatus)
+                }
+                .onFailure { error ->
+                    onError(error.message ?: "Failed to update station status")
                 }
         }
     }

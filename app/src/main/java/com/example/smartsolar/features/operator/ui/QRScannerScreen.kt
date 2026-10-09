@@ -10,7 +10,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.smartsolar.features.reservations.models.Reservation
+import com.example.smartsolar.features.reservations.ui.ReservationUiState
 import com.example.smartsolar.features.reservations.ui.ReservationViewModel
 import com.example.smartsolar.ui.theme.CharcoalText
 import com.example.smartsolar.ui.theme.GrayText
@@ -54,10 +55,28 @@ fun QRScannerScreen(
 
     val selectedReservation by viewModel.selectedReservation.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(selectedReservation) {
-        if (selectedReservation != null && !isLoading) {
-            onQRScanned(selectedReservation!!)
+    LaunchedEffect(Unit) {
+        viewModel.clearSelectedReservation()
+        viewModel.resetState()
+        isProcessing = false
+        scanStatus = "Point camera at QR code"
+    }
+
+    LaunchedEffect(selectedReservation, isLoading) {
+        if (isProcessing && selectedReservation != null && !isLoading) {
+            val res = selectedReservation!!
+            isProcessing = false
+            viewModel.clearSelectedReservation()
+            onQRScanned(res)
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        if (uiState is ReservationUiState.Error) {
+            scanStatus = (uiState as ReservationUiState.Error).message
+            isProcessing = false
         }
     }
 
@@ -74,7 +93,7 @@ fun QRScannerScreen(
             TopAppBar(
                 title = { Text("Scan QR Code", fontWeight = FontWeight.Bold, color = CharcoalText) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) { Icon(Icons.Default.ArrowBack, null, tint = CharcoalText) }
+                    IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = CharcoalText) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
@@ -125,8 +144,15 @@ fun QRScannerScreen(
                                                             if (raw != null && !isProcessing) {
                                                                 isProcessing = true
                                                                 try {
-                                                                    val json = JSONObject(raw)
-                                                                    val reservationId = json.getString("reservationId")
+                                                                    val reservationId = try {
+                                                                        val json = JSONObject(raw)
+                                                                        if (json.has("reservationId")) json.getString("reservationId")
+                                                                        else if (json.has("id")) json.getString("id")
+                                                                        else raw.trim()
+                                                                    } catch (e: Exception) {
+                                                                        raw.trim()
+                                                                    }
+                                                                    scanStatus = "Validating reservation..."
                                                                     viewModel.validateQr(token, reservationId)
                                                                 } catch (e: Exception) {
                                                                     scanStatus = "Invalid QR code format"

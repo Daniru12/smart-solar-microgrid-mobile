@@ -1,12 +1,10 @@
 package com.example.smartsolar.features.microgrid.network
 
+import com.example.smartsolar.features.microgrid.models.CreateSlotRequest
 import com.example.smartsolar.features.microgrid.models.EnergySlot
 import com.example.smartsolar.features.microgrid.models.Station
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Body
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.Response
+import retrofit2.http.*
 import com.example.smartsolar.features.auth.models.LoginRequest
 import com.example.smartsolar.features.auth.models.AuthApiResponse
 
@@ -26,6 +24,24 @@ interface MicrogridApiService {
         @Path("id") id: String,
         @Query("date") date: String? = null
     ): List<EnergySlot>
+
+    @POST("stations/{id}/slots")
+    suspend fun createSlot(
+        @Path("id") stationId: String,
+        @Body request: CreateSlotRequest
+    ): EnergySlot
+
+    @PATCH("EnergySlots/{id}/status")
+    suspend fun updateSlotStatus(
+        @Path("id") slotId: String,
+        @Body status: String
+    ): Response<Unit>
+
+    @PATCH("stations/{id}/status")
+    suspend fun updateStationStatus(
+        @Path("id") stationId: String,
+        @Body status: String
+    ): Response<Unit>
 
     @POST("auth/login")
     suspend fun login(

@@ -19,7 +19,10 @@ data class AuthResponse(
     val nic: String? = null,
 
     @SerializedName("name")
-    val name: String? = null
+    val name: String? = null,
+
+    @SerializedName("stationId")
+    val stationId: String? = null
 )
 
 data class AuthApiResponse(

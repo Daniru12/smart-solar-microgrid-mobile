@@ -351,9 +351,9 @@ fun ModifyReservationScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("New Estimated Revenue", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
+                                Text("New Energy Quota", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
                                 Text(
-                                    String.format(Locale.US, "LKR %,.2f", estimatedCredits),
+                                    "$energyNum kWh",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color(0xFF15803D)

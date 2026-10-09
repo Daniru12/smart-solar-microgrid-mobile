@@ -245,9 +245,9 @@ fun ReservationDetailsScreen(
                             modifier = Modifier.weight(1f)
                         )
                         TelemetryBox(
-                            title = "ESTIMATED CREDITS",
-                            value = String.format(Locale.US, "LKR %,.2f", estimatedCredits),
-                            icon = Icons.Default.AccountBalanceWallet,
+                            title = "CO2 OFFSET",
+                            value = String.format(Locale.US, "%.1f kg", reservation.energyAmountKwh * 0.8),
+                            icon = Icons.Default.Eco,
                             accentColor = Color(0xFF15803D),
                             modifier = Modifier.weight(1f)
                         )
@@ -324,7 +324,7 @@ fun ReservationDetailsScreen(
                     AuditRow(label = "Prosumer NIC", value = reservation.prosumerNic)
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
 
-                    AuditRow(label = "Grid Rate Tariff", value = "LKR 44.50 per kWh (Fixed Feed-In)")
+                    AuditRow(label = "Environmental Offset", value = String.format(Locale.US, "%.1f kg CO₂ Offset", reservation.energyAmountKwh * 0.8))
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
 
                     AuditRow(label = "Record Created", value = formatDisplayDate(reservation.createdAt))

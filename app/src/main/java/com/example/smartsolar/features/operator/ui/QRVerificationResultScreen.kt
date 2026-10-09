@@ -44,7 +44,8 @@ fun QRVerificationResultScreen(
     token: String,
     viewModel: ReservationViewModel,
     onComplete: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onScanAnother: () -> Unit = onNavigateBack
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
@@ -292,9 +293,9 @@ fun QRVerificationResultScreen(
                             modifier = Modifier.weight(1f)
                         )
                         DispatchMetricBox(
-                            title = "EST. CREDIT PAYOUT",
-                            value = String.format(Locale.US, "LKR %,.2f", estimatedCredits),
-                            icon = Icons.Default.AccountBalanceWallet,
+                            title = "CO2 OFFSET",
+                            value = String.format(Locale.US, "%.1f kg", reservation.energyAmountKwh * 0.8),
+                            icon = Icons.Default.Eco,
                             accentColor = Color(0xFF15803D),
                             modifier = Modifier.weight(1f)
                         )
@@ -462,7 +463,7 @@ fun QRVerificationResultScreen(
                     }
 
                     OutlinedButton(
-                        onClick = onNavigateBack,
+                        onClick = onScanAnother,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
@@ -480,6 +481,15 @@ fun QRVerificationResultScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
                         )
+                    }
+
+                    TextButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.BookOnline, null, modifier = Modifier.size(18.dp), tint = GrayText)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back to Bookings", color = GrayText, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                     }
                 } else if (isPending) {
 
@@ -502,25 +512,49 @@ fun QRVerificationResultScreen(
                     }
 
                     OutlinedButton(
-                        onClick = onNavigateBack,
+                        onClick = onScanAnother,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
                         shape = RoundedCornerShape(14.dp)
                     ) {
+                        Icon(Icons.Default.QrCodeScanner, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
                         Text("Back to Scanner", fontWeight = FontWeight.Bold)
                     }
+
+                    TextButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.BookOnline, null, modifier = Modifier.size(18.dp), tint = GrayText)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Back to Bookings", color = GrayText, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    }
                 } else {
-                    OutlinedButton(
+                    Button(
                         onClick = onNavigateBack,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = CharcoalText, contentColor = LimeAccent)
+                    ) {
+                        Icon(Icons.Default.BookOnline, null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Back to Bookings", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = onScanAnother,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
                         shape = RoundedCornerShape(14.dp)
                     ) {
-                        Icon(Icons.Default.QrCodeScanner, null, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.QrCodeScanner, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Back to Scanner", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text("Scan Another QR Code", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     }
                 }
             }

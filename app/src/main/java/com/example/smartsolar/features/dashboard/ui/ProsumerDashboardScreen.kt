@@ -143,8 +143,8 @@ fun MicrogridStatusTicker() {
             textColor = CharcoalText
         )
         TickerPill(
-            icon = Icons.Default.ElectricMeter,
-            text = "FEED-IN: LKR 44.50/kWh",
+            icon = Icons.Default.Eco,
+            text = "CLEAN OFFSET: 0.8 kg/kWh",
             badgeColor = MaterialTheme.colorScheme.surfaceVariant,
             textColor = CharcoalText
         )
@@ -278,9 +278,9 @@ fun ProsumerHeader(name: String, nic: String) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Solar Credit Balance", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
+                        Text("Clean Energy Yield", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("LKR 28,450.00", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = CharcoalText)
+                            Text("284.5 kWh", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = CharcoalText)
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
                                 color = Color(0xFFDCFCE7),

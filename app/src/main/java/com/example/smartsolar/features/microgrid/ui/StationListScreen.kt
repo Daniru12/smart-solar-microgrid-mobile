@@ -1,6 +1,7 @@
 package com.example.smartsolar.features.microgrid.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +12,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.smartsolar.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
@@ -32,10 +37,16 @@ import com.example.smartsolar.ui.theme.LimeAccent
 import com.example.smartsolar.ui.theme.LimeAccentDark
 import com.example.smartsolar.ui.theme.SurfaceLight
 
+import com.example.smartsolar.features.microgrid.models.isStationAssignedToOperator
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StationListScreen(
     viewModel: MicrogridViewModel,
+    isOperator: Boolean = false,
+    operatorEmail: String = "",
+    operatorName: String = "",
+    operatorStationId: String = "",
     onStationSelected: (String) -> Unit
 ) {
     val state by viewModel.stationsState.collectAsState()
@@ -52,8 +63,17 @@ fun StationListScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Microgrid Stations", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = CharcoalText)
-                        Text("Active Fleet & Energy Transfer Hubs", fontSize = 11.sp, color = GrayText)
+                        Text(
+                            if (isOperator) "My Grid Station" else "Microgrid Stations",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 20.sp,
+                            color = CharcoalText
+                        )
+                        Text(
+                            if (isOperator) "Assigned Microgrid Station Management" else "Active Fleet & Energy Transfer Hubs",
+                            fontSize = 11.sp,
+                            color = GrayText
+                        )
                     }
                 },
                 actions = {
@@ -125,8 +145,23 @@ fun StationListScreen(
                 .padding(innerPadding)
         ) {
             if (isMapView) {
+                val allStations = (state as? UiState.Success)?.data ?: emptyList()
+                val visibleStations = if (isOperator) {
+                    val assigned = allStations.filter { s ->
+                        isStationAssignedToOperator(s, operatorEmail, operatorName, operatorStationId)
+                    }
+                    if (assigned.isNotEmpty()) assigned else {
+                        allStations.filter { s -> s.gridOperatorName?.isNotBlank() == true }.ifEmpty { allStations }
+                    }
+                } else {
+                    allStations
+                }
                 Box(modifier = Modifier.fillMaxSize()) {
-                    GridMapScreen(viewModel = viewModel, onStationSelected = onStationSelected)
+                    GridMapScreen(
+                        viewModel = viewModel,
+                        stations = visibleStations.ifEmpty { null },
+                        onStationSelected = onStationSelected
+                    )
                 }
             } else {
                 when (state) {
@@ -152,7 +187,17 @@ fun StationListScreen(
                         }
                     }
                     is UiState.Success -> {
-                        val stations = (state as UiState.Success).data
+                        val allStations = (state as UiState.Success).data
+                        val stations = if (isOperator) {
+                            val assigned = allStations.filter { s ->
+                                isStationAssignedToOperator(s, operatorEmail, operatorName, operatorStationId)
+                            }
+                            if (assigned.isNotEmpty()) assigned else {
+                                allStations.filter { s -> s.gridOperatorName?.isNotBlank() == true }.ifEmpty { allStations }
+                            }
+                        } else {
+                            allStations
+                        }
 
                         val filteredStations = stations.filter { s ->
                             val matchesSearch = s.name.contains(searchQuery, ignoreCase = true) ||
@@ -344,55 +389,39 @@ fun EnhancedStationCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(20.dp)
     ) {
-        Column(modifier = Modifier.padding(18.dp)) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+        Column {
+            // Station Visual Image Banner
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
             ) {
-                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(46.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(CharcoalText),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.EvStation,
-                            contentDescription = null,
-                            tint = LimeAccent,
-                            modifier = Modifier.size(26.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = station.name,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 17.sp,
-                            color = CharcoalText,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, contentDescription = null, tint = GrayText, modifier = Modifier.size(13.dp))
-                            Spacer(modifier = Modifier.width(3.dp))
-                            Text(
-                                text = station.address.ifBlank { "Microgrid Regional Sector" },
-                                fontSize = 12.sp,
-                                color = GrayText,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                Image(
+                    painter = painterResource(id = R.drawable.solar_panel_img),
+                    contentDescription = station.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.2f),
+                                    Color.Black.copy(alpha = 0.75f)
+                                )
                             )
-                        }
-                    }
-                }
+                        )
+                )
 
+                // Status Badge in top right
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = if (isOnline) Color(0xFFDCFCE7) else MaterialTheme.colorScheme.surfaceVariant
+                    color = if (isOnline) Color(0xFF15803D).copy(alpha = 0.9f) else Color(0xFFDC2626).copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -402,20 +431,47 @@ fun EnhancedStationCard(
                             modifier = Modifier
                                 .size(6.dp)
                                 .clip(CircleShape)
-                                .background(if (isOnline) Color(0xFF15803D) else GrayText)
+                                .background(Color.White)
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = if (isOnline) "ONLINE" else "OFFLINE",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = if (isOnline) Color(0xFF15803D) else GrayText
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // Station Title and Location in bottom overlay
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = station.name,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 17.sp,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = LimeAccent, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = station.address.ifBlank { "Microgrid Regional Sector" },
+                            fontSize = 11.sp,
+                            color = Color.White.copy(alpha = 0.9f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Column(modifier = Modifier.padding(14.dp)) {
 
             Box(
                 modifier = Modifier
@@ -472,4 +528,5 @@ fun EnhancedStationCard(
             }
         }
     }
+}
 }

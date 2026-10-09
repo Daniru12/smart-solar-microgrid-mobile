@@ -73,7 +73,12 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                _selectedReservation.value = repository.validateQr(token, id)
+                val res = repository.validateQr(token, id)
+                if (res != null) {
+                    _selectedReservation.value = res
+                } else {
+                    _uiState.value = ReservationUiState.Error("Reservation not found or invalid QR")
+                }
             } catch (e: Exception) {
                 _uiState.value = ReservationUiState.Error(e.message ?: "QR Validation failed")
             } finally {
@@ -192,7 +197,12 @@ class ReservationViewModel(private val repository: ReservationRepository) : View
         }
     }
 
+    fun clearSelectedReservation() {
+        _selectedReservation.value = null
+    }
+
     fun resetState() {
         _uiState.value = ReservationUiState.Idle
+        _selectedReservation.value = null
     }
 }

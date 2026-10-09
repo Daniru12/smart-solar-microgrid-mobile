@@ -18,9 +18,24 @@ data class EnergySlot(
     @SerializedName("endTime")
     val endTime: String,
 
+    @SerializedName("capacity")
+    val capacity: Double = 0.0,
+
     @SerializedName("availableCapacity")
-    val capacityAvailable: Double,
+    val capacityAvailable: Double = 0.0,
 
     @SerializedName("status")
-    val status: String
-)
+    val status: String = "Available"
+) {
+    val effectiveCapacity: Double
+        get() = if (capacity > 0) capacity else capacityAvailable
+
+    val bookedCapacity: Double
+        get() = (effectiveCapacity - capacityAvailable).coerceAtLeast(0.0)
+
+    val remainingCapacity: Double
+        get() = capacityAvailable
+
+    val percentRemaining: Float
+        get() = if (effectiveCapacity > 0) ((capacityAvailable / effectiveCapacity) * 100).toFloat().coerceIn(0f, 100f) else 100f
+}

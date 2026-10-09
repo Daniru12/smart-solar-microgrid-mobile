@@ -177,7 +177,7 @@ fun ProsumerProfileScreen(
 
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 LedgerBox("TOTAL EXPORTED", "342.8 kWh", Icons.Default.Bolt, CharcoalText, Modifier.weight(1f))
-                                LedgerBox("TOTAL CREDITS", "LKR 28,450", Icons.Default.AccountBalanceWallet, Color(0xFF15803D), Modifier.weight(1f))
+                                LedgerBox("PEAK DISPATCH", "4.8 kW", Icons.Default.Speed, Color(0xFF15803D), Modifier.weight(1f))
                             }
                             Spacer(modifier = Modifier.height(10.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -241,8 +241,8 @@ fun ProsumerProfileScreen(
                             Text("Grid Connection & Tariff Details", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = CharcoalText)
 
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Feed-in Tariff Agreement", fontSize = 12.sp, color = GrayText)
-                                Text("LKR 44.50/kWh (Fixed)", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = CharcoalText)
+                                Text("Feed-in Energy Agreement", fontSize = 12.sp, color = GrayText)
+                                Text("Active Standard", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = CharcoalText)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("Assigned Regional Grid Node", fontSize = 12.sp, color = GrayText)

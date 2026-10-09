@@ -354,9 +354,9 @@ fun QRDisplayScreen(
                                 modifier = Modifier.weight(1f)
                             )
                             PassTelemetryBox(
-                                title = "EST. CREDIT PAYOUT",
-                                value = String.format(Locale.US, "LKR %,.2f", estimatedCredits),
-                                icon = Icons.Default.AccountBalanceWallet,
+                                title = "CO2 OFFSET",
+                                value = String.format(Locale.US, "%.1f kg", reservation.energyAmountKwh * 0.8),
+                                icon = Icons.Default.Eco,
                                 accentColor = Color(0xFF15803D),
                                 modifier = Modifier.weight(1f)
                             )

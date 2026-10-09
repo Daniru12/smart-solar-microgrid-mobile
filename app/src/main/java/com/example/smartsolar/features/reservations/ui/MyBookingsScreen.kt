@@ -58,7 +58,11 @@ fun MyBookingsScreen(
         }
     }
 
-    val tabs = listOf("All", "Pending", "Approved", "Completed", "Cancelled")
+    val activeReservations = remember(reservations) {
+        reservations.filter { it.status == "Pending" || it.status == "Approved" }
+    }
+
+    val tabs = listOf("All Active", "Approved", "Pending")
     var selectedTab by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
@@ -66,23 +70,18 @@ fun MyBookingsScreen(
         microgridViewModel?.loadStations()
     }
 
-    val pendingCount = reservations.count { it.status == "Pending" }
-    val approvedCount = reservations.count { it.status == "Approved" }
-    val completedCount = reservations.count { it.status == "Completed" }
-    val cancelledCount = reservations.count { it.status == "Cancelled" }
+    val pendingCount = activeReservations.count { it.status == "Pending" }
+    val approvedCount = activeReservations.count { it.status == "Approved" }
 
-    val counts = listOf(reservations.size, pendingCount, approvedCount, completedCount, cancelledCount)
+    val counts = listOf(activeReservations.size, approvedCount, pendingCount)
 
     val filtered = when (selectedTab) {
-        1 -> reservations.filter { it.status == "Pending" }
-        2 -> reservations.filter { it.status == "Approved" }
-        3 -> reservations.filter { it.status == "Completed" }
-        4 -> reservations.filter { it.status == "Cancelled" }
-        else -> reservations
+        1 -> activeReservations.filter { it.status == "Approved" }
+        2 -> activeReservations.filter { it.status == "Pending" }
+        else -> activeReservations
     }
 
-    val totalEnergy = reservations.filter { it.status == "Completed" }.sumOf { it.energyAmountKwh }
-    val totalCredits = totalEnergy * 44.50
+    val totalScheduledEnergy = activeReservations.sumOf { it.energyAmountKwh }
 
     Scaffold(
         topBar = {
@@ -90,30 +89,30 @@ fun MyBookingsScreen(
                 title = {
                     Column {
                         Text("My Bookings", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = CharcoalText)
-                        Text("Energy Transfer Sessions & History", fontSize = 11.sp, color = GrayText)
+                        Text("Active & Pending Energy Passes", fontSize = 11.sp, color = GrayText)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
                 actions = {
+                    Button(
+                        onClick = onCreateReservation,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = CharcoalText,
+                            contentColor = LimeAccent
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(end = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp), tint = LimeAccent)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Book Slot", fontWeight = FontWeight.ExtraBold, fontSize = 12.sp, color = LimeAccent)
+                    }
                     IconButton(onClick = { viewModel.loadMyReservations(token, nic) }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = CharcoalText)
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onCreateReservation,
-                containerColor = CharcoalText,
-                contentColor = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(18.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
-                modifier = Modifier.padding(bottom = 80.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "New Booking", modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("New Booking", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -124,9 +123,9 @@ fun MyBookingsScreen(
         ) {
 
             BookingsSummaryBanner(
-                totalCompleted = completedCount,
-                totalEnergyKwh = totalEnergy,
-                totalCreditsLkr = totalCredits
+                activeCount = activeReservations.size,
+                scheduledEnergyKwh = totalScheduledEnergy,
+                approvedCount = approvedCount
             )
 
             BookingFilterTabs(
@@ -182,7 +181,7 @@ fun MyBookingsScreen(
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                "You don't have any ${tabs[selectedTab].lowercase()} energy reservations in this filter.",
+                                "No active bookings in this view. Completed and cancelled bookings can be viewed in the History tab.",
                                 fontSize = 13.sp,
                                 color = GrayText,
                                 textAlign = TextAlign.Center,
@@ -207,7 +206,7 @@ fun MyBookingsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     items(filtered, key = { it.id }) { reservation ->
@@ -226,9 +225,9 @@ fun MyBookingsScreen(
 
 @Composable
 fun BookingsSummaryBanner(
-    totalCompleted: Int,
-    totalEnergyKwh: Double,
-    totalCreditsLkr: Double
+    activeCount: Int,
+    scheduledEnergyKwh: Double,
+    approvedCount: Int
 ) {
     Card(
         modifier = Modifier
@@ -246,9 +245,9 @@ fun BookingsSummaryBanner(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Total Dispatched", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
+                Text("Scheduled Energy", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
                 Text(
-                    String.format(Locale.US, "%.1f kWh", totalEnergyKwh),
+                    String.format(Locale.US, "%.1f kWh", scheduledEnergyKwh),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = CharcoalText
@@ -261,12 +260,12 @@ fun BookingsSummaryBanner(
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             )
             Column {
-                Text("Credits Earned", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
+                Text("Active Bookings", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
                 Text(
-                    String.format(Locale.US, "LKR %,.0f", totalCreditsLkr),
+                    "$activeCount Total",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF15803D)
+                    color = CharcoalText
                 )
             }
             Box(
@@ -276,15 +275,15 @@ fun BookingsSummaryBanner(
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             )
             Column(horizontalAlignment = Alignment.End) {
-                Text("Completed", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
+                Text("Passes Ready", fontSize = 11.sp, color = GrayText, fontWeight = FontWeight.Medium)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF15803D), modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        "$totalCompleted Sessions",
+                        "$approvedCount Approved",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CharcoalText
+                        color = Color(0xFF15803D)
                     )
                 }
             }
@@ -385,10 +384,12 @@ fun ReservationCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
@@ -487,7 +488,7 @@ fun ReservationCard(
                         }
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
-                            String.format(Locale.US, "Est: LKR %,.2f", estimatedCredits),
+                            String.format(Locale.US, "%.1f kg CO₂", reservation.energyAmountKwh * 0.8),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF15803D)
