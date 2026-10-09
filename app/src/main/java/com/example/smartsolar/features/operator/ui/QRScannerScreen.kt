@@ -144,14 +144,7 @@ fun QRScannerScreen(
                                                             if (raw != null && !isProcessing) {
                                                                 isProcessing = true
                                                                 try {
-                                                                    val reservationId = try {
-                                                                        val json = JSONObject(raw)
-                                                                        if (json.has("reservationId")) json.getString("reservationId")
-                                                                        else if (json.has("id")) json.getString("id")
-                                                                        else raw.trim()
-                                                                    } catch (e: Exception) {
-                                                                        raw.trim()
-                                                                    }
+                                                                    val reservationId = extractReservationId(raw)
                                                                     scanStatus = "Validating reservation..."
                                                                     viewModel.validateQr(token, reservationId)
                                                                 } catch (e: Exception) {
@@ -206,5 +199,42 @@ fun QRScannerScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * Parses QR codes from both Mobile (JSON) and Web (SSM|reservationId|token) formats.
+ */
+private fun extractReservationId(raw: String): String {
+    return try {
+        val trimmed = raw.trim()
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+            val json = JSONObject(trimmed)
+            when {
+                json.has("reservationId") -> json.getString("reservationId")
+                json.has("id") -> json.getString("id")
+                json.has("bookingId") -> json.getString("bookingId")
+                json.has("qrPayload") -> {
+                    val p = json.getString("qrPayload")
+                    if (p.startsWith("SSM|")) p.split("|").getOrNull(1) ?: p else p
+                }
+                else -> trimmed
+            }
+        } else if (trimmed.startsWith("SSM|")) {
+            // Web QR code payload format: "SSM|reservationId|token"
+            val parts = trimmed.split("|")
+            if (parts.size >= 2 && parts[1].isNotBlank()) parts[1] else trimmed
+        } else if (trimmed.contains("|")) {
+            // Any pipe-delimited format containing reservationId
+            val parts = trimmed.split("|")
+            val hex24 = parts.firstOrNull { it.length == 24 && it.all { c -> c.isDigit() || c in 'a'..'f' || c in 'A'..'F' } }
+            hex24 ?: (if (parts.size >= 2) parts[1] else parts[0])
+        } else if (trimmed.contains("/")) {
+            trimmed.substringAfterLast("/")
+        } else {
+            trimmed
+        }
+    } catch (e: Exception) {
+        raw.trim()
     }
 }
