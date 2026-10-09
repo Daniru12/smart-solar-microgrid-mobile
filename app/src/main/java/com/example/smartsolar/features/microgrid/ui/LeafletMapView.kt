@@ -6,7 +6,9 @@ import android.content.Intent
 import android.graphics.Color as AndroidColor
 import android.net.Uri
 import android.view.ViewGroup
+import android.webkit.GeolocationPermissions
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -18,17 +20,25 @@ import com.example.smartsolar.features.microgrid.models.Station
 import org.json.JSONArray
 import org.json.JSONObject
 
-class LeafletBridge(private val onStationSelected: (String) -> Unit) {
+class LeafletBridge(
+    private val onStationSelected: (String) -> Unit,
+    private val onUserLocationReported: ((Double, Double) -> Unit)? = null
+) {
     @JavascriptInterface
     fun selectStation(stationId: String) {
         onStationSelected(stationId)
     }
+
+    @JavascriptInterface
+    fun reportUserLocation(lat: Double, lng: Double) {
+        onUserLocationReported?.invoke(lat, lng)
+    }
 }
 
 /**
- * Official Google Maps interactive engine powered directly by the Google Maps API Key:
+ * Official Google Maps interactive engine powered directly by Google Maps API Key:
  * AIzaSyDs5GpCSY7nPa2nS5Sm5099_JkKe-oauR0
- * Displays official Google Maps tiles, 10 km radius circle, My Location, and nearest stations.
+ * Live high-accuracy GPS tracking, 10 km radius circle, custom location pin, and station markers.
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -42,10 +52,12 @@ fun LeafletMapView(
     centerLng: Double? = null,
     userLat: Double? = null,
     userLng: Double? = null,
+    recenterTrigger: Int = 0,
+    onUserLocationDetected: ((Double, Double) -> Unit)? = null,
     show10KmCircle: Boolean = true,
     interactive: Boolean = true
 ) {
-    val htmlContent = remember(stations, centerLat, centerLng, userLat, userLng, show10KmCircle) {
+    val htmlContent = remember(stations, centerLat, centerLng) {
         generateGoogleMapsHtml(
             stations = stations,
             centerLat = centerLat,
@@ -71,11 +83,28 @@ fun LeafletMapView(
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
                 settings.cacheMode = WebSettings.LOAD_DEFAULT
+                settings.setGeolocationEnabled(true)
                 settings.userAgentString = "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
                 settings.builtInZoomControls = false
                 settings.displayZoomControls = false
+
+                webChromeClient = object : WebChromeClient() {
+                    override fun onGeolocationPermissionsShowPrompt(
+                        origin: String?,
+                        callback: GeolocationPermissions.Callback?
+                    ) {
+                        callback?.invoke(origin, true, false)
+                    }
+                }
+
                 webViewClient = WebViewClient()
-                addJavascriptInterface(LeafletBridge(onStationSelected), "AndroidBridge")
+                addJavascriptInterface(
+                    LeafletBridge(
+                        onStationSelected = onStationSelected,
+                        onUserLocationReported = onUserLocationDetected
+                    ),
+                    "AndroidBridge"
+                )
                 loadDataWithBaseURL("https://maps.googleapis.com", htmlContent, "text/html", "UTF-8", null)
             }
         },
@@ -83,13 +112,17 @@ fun LeafletMapView(
             if (!selectedStationId.isNullOrBlank()) {
                 webView.evaluateJavascript("if (window.selectMarkerById) { window.selectMarkerById('$selectedStationId'); }", null)
             }
+            if (userLat != null && userLng != null) {
+                val forceCenter = recenterTrigger > 0
+                webView.evaluateJavascript("if (window.updateUserLocation) { window.updateUserLocation($userLat, $userLng, $forceCenter); }", null)
+            }
         },
         modifier = modifier
     )
 }
 
 /**
- * Builds self-contained Google Maps JavaScript API HTML using key AIzaSyDs5GpCSY7nPa2nS5Sm5099_JkKe-oauR0
+ * Builds self-contained Google Maps JavaScript API HTML with live GPS location & 10 km Circle.
  */
 private fun generateGoogleMapsHtml(
     stations: List<Station>,
@@ -212,6 +245,36 @@ private fun generateGoogleMapsHtml(
         var map;
         var markersMap = {};
         var currentInfoWindow = null;
+        var userMarker = null;
+        var circle10Km = null;
+        var hasCenteredOnUser = false;
+
+        function getStationIcon(isNearby) {
+            var badgeColor = isNearby ? '#10B981' : '#84CC16';
+            var stationSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">' +
+                '<path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 32 20 32s20-17 20-32C40 8.95 31.05 0 20 0z" fill="#0F172A"/>' +
+                '<circle cx="20" cy="19" r="13" fill="' + badgeColor + '"/>' +
+                '<path d="M21.5 8.5L13 21h7L18.5 30l9.5-13.5h-7.5l2.5-8z" fill="#0F172A"/>' +
+            '</svg>';
+            return {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(stationSvg),
+                scaledSize: new google.maps.Size(38, 49),
+                anchor: new google.maps.Point(19, 49)
+            };
+        }
+
+        function getUserIcon() {
+            var userPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">' +
+                '<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.06 27.94 0 18 0z" fill="#2563EB"/>' +
+                '<circle cx="18" cy="18" r="7.5" fill="#FFFFFF"/>' +
+                '<circle cx="18" cy="18" r="4" fill="#2563EB"/>' +
+            '</svg>';
+            return {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(userPinSvg),
+                scaledSize: new google.maps.Size(34, 45),
+                anchor: new google.maps.Point(17, 45)
+            };
+        }
 
         function initMap() {
             var centerPos = { lat: defaultLat, lng: defaultLng };
@@ -227,52 +290,14 @@ private fun generateGoogleMapsHtml(
                 ]
             });
 
-            // 10 km Radius Circle and My Location Marker
+            // Set up initial user location if provided
             if (userLat !== null && userLng !== null) {
-                var userPos = { lat: userLat, lng: userLng };
-
-                if (show10Km) {
-                    new google.maps.Circle({
-                        strokeColor: "#2563EB",
-                        strokeOpacity: 0.85,
-                        strokeWeight: 2,
-                        fillColor: "#3B82F6",
-                        fillOpacity: 0.12,
-                        map: map,
-                        center: userPos,
-                        radius: 10000 // 10,000 meters = 10 km
-                    });
-                }
-
-                var userPinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">' +
-                    '<path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.06 27.94 0 18 0z" fill="#2563EB"/>' +
-                    '<circle cx="18" cy="18" r="7.5" fill="#FFFFFF"/>' +
-                    '<circle cx="18" cy="18" r="4" fill="#2563EB"/>' +
-                '</svg>';
-
-                var userMarker = new google.maps.Marker({
-                    position: userPos,
-                    map: map,
-                    title: "My Location",
-                    icon: {
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(userPinSvg),
-                        scaledSize: new google.maps.Size(34, 45),
-                        anchor: new google.maps.Point(17, 45)
-                    },
-                    zIndex: 999
-                });
-
-                var userInfowindow = new google.maps.InfoWindow({
-                    content: '<div style="color:#0f172a;font-weight:bold;font-size:12px;padding:4px;">📍 My Location<br/><span style="color:#64748b;font-weight:normal;font-size:10px;">10 km station range active</span></div>'
-                });
-
-                userMarker.addListener("click", function() {
-                    if (currentInfoWindow) currentInfoWindow.close();
-                    currentInfoWindow = userInfowindow;
-                    userInfowindow.open(map, userMarker);
-                });
+                renderUserLocation(userLat, userLng);
+                map.setCenter({ lat: userLat, lng: userLng });
+                hasCenteredOnUser = true;
             }
 
+            // Render all stations
             var bounds = new google.maps.LatLngBounds();
             if (userLat !== null && userLng !== null) {
                 bounds.extend(new google.maps.LatLng(userLat, userLng));
@@ -290,22 +315,11 @@ private fun generateGoogleMapsHtml(
                     isNearby = (d <= 10.0);
                 }
 
-                var badgeColor = isNearby ? '#10B981' : '#84CC16';
-                var stationSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">' +
-                    '<path d="M20 0C8.95 0 0 8.95 0 20c0 15 20 32 20 32s20-17 20-32C40 8.95 31.05 0 20 0z" fill="#0F172A"/>' +
-                    '<circle cx="20" cy="19" r="13" fill="' + badgeColor + '"/>' +
-                    '<path d="M21.5 8.5L13 21h7L18.5 30l9.5-13.5h-7.5l2.5-8z" fill="#0F172A"/>' +
-                '</svg>';
-
                 var marker = new google.maps.Marker({
                     position: pos,
                     map: map,
                     title: station.name,
-                    icon: {
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(stationSvg),
-                        scaledSize: new google.maps.Size(38, 49),
-                        anchor: new google.maps.Point(19, 49)
-                    }
+                    icon: getStationIcon(isNearby)
                 });
 
                 markersMap[station.id] = marker;
@@ -340,7 +354,88 @@ private fun generateGoogleMapsHtml(
             if (stations.length > 1 && !userLat) {
                 map.fitBounds(bounds);
             }
+
+            // Query high-accuracy GPS directly in WebView
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        var freshLat = position.coords.latitude;
+                        var freshLng = position.coords.longitude;
+                        window.updateUserLocation(freshLat, freshLng, true);
+                        if (window.AndroidBridge && window.AndroidBridge.reportUserLocation) {
+                            window.AndroidBridge.reportUserLocation(freshLat, freshLng);
+                        }
+                    },
+                    function(err) {
+                        console.log("Geolocation error/skipped:", err);
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            }
         }
+
+        function renderUserLocation(lat, lng) {
+            var userPos = { lat: lat, lng: lng };
+
+            if (!circle10Km && show10Km) {
+                circle10Km = new google.maps.Circle({
+                    strokeColor: "#2563EB",
+                    strokeOpacity: 0.85,
+                    strokeWeight: 2,
+                    fillColor: "#3B82F6",
+                    fillOpacity: 0.12,
+                    map: map,
+                    center: userPos,
+                    radius: 10000
+                });
+            } else if (circle10Km) {
+                circle10Km.setCenter(userPos);
+            }
+
+            if (!userMarker) {
+                userMarker = new google.maps.Marker({
+                    position: userPos,
+                    map: map,
+                    title: "My Location",
+                    icon: getUserIcon(),
+                    zIndex: 999
+                });
+
+                var userInfowindow = new google.maps.InfoWindow({
+                    content: '<div style="color:#0f172a;font-weight:bold;font-size:12px;padding:4px;">📍 My Location<br/><span style="color:#64748b;font-weight:normal;font-size:10px;">10 km station range active</span></div>'
+                });
+
+                userMarker.addListener("click", function() {
+                    if (currentInfoWindow) currentInfoWindow.close();
+                    currentInfoWindow = userInfowindow;
+                    userInfowindow.open(map, userMarker);
+                });
+            } else {
+                userMarker.setPosition(userPos);
+            }
+        }
+
+        window.updateUserLocation = function(lat, lng, forceCenter) {
+            userLat = lat;
+            userLng = lng;
+            renderUserLocation(lat, lng);
+
+            if (map && (!hasCenteredOnUser || forceCenter)) {
+                map.panTo({ lat: lat, lng: lng });
+                map.setZoom(13);
+                hasCenteredOnUser = true;
+            }
+
+            // Update distances and marker styles for all stations
+            stations.forEach(function(station) {
+                var d = computeDistanceKm(lat, lng, station.latitude, station.longitude);
+                var isNearby = (d <= 10.0);
+                var marker = markersMap[station.id];
+                if (marker) {
+                    marker.setIcon(getStationIcon(isNearby));
+                }
+            });
+        };
 
         function computeDistanceKm(lat1, lon1, lat2, lon2) {
             var R = 6371;

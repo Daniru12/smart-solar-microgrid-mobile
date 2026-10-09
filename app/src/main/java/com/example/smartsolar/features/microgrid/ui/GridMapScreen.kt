@@ -1,6 +1,14 @@
 package com.example.smartsolar.features.microgrid.ui
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,19 +34,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.smartsolar.features.microgrid.models.Station
 import com.example.smartsolar.ui.theme.CharcoalText
 import com.example.smartsolar.ui.theme.GrayText
 import com.example.smartsolar.ui.theme.LimeAccent
 import com.example.smartsolar.ui.theme.LimeAccentDark
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.Circle
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun GridMapScreen(
@@ -60,41 +62,54 @@ fun GridMapScreen(
     }
 
     var selectedStationId by remember { mutableStateOf<String?>(null) }
-    var useGoogleNativeMap by remember { mutableStateOf(false) }
+    var liveUserLocation by remember { mutableStateOf<LatLng?>(null) }
+    var recenterCounter by remember { mutableStateOf(0) }
+
+    // Request runtime location permissions to acquire true device GPS coordinates
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                      permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (granted) {
+            queryLiveLocation(context) { loc -> liveUserLocation = loc }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val fineGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (fineGranted || coarseGranted) {
+            queryLiveLocation(context) { loc -> liveUserLocation = loc }
+        } else {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
 
     val selectedStation = remember(selectedStationId, stationList) {
         stationList.firstOrNull { it.id == selectedStationId }
     }
 
-    // Determine user location from device sensors or default to nearest station / Colombo
-    val userLatLng = remember(stationList) {
-        var detected: LatLng? = null
-        try {
-            val lm = context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
-            val loc = lm?.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
-                ?: lm?.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
-            if (loc != null) {
-                detected = LatLng(loc.latitude, loc.longitude)
-            }
-        } catch (e: Exception) {}
-
-        detected ?: if (stationList.isNotEmpty()) {
-            LatLng(stationList.first().latitude, stationList.first().longitude)
+    // Identify stations strictly within 10 km of the user's real GPS location
+    val stationsWithin10Km = remember(stationList, liveUserLocation) {
+        val uLoc = liveUserLocation
+        if (uLoc == null) {
+            emptyList()
         } else {
-            LatLng(6.9271, 79.8612) // Colombo default
-        }
-    }
-
-    // Identify stations strictly within 10 km of the user location
-    val stationsWithin10Km = remember(stationList, userLatLng) {
-        stationList.filter { s ->
-            val results = FloatArray(1)
-            android.location.Location.distanceBetween(
-                userLatLng.latitude, userLatLng.longitude,
-                s.latitude, s.longitude,
-                results
-            )
-            results[0] <= 10000f // 10,000 meters = 10 km
+            stationList.filter { s ->
+                val results = FloatArray(1)
+                android.location.Location.distanceBetween(
+                    uLoc.latitude, uLoc.longitude,
+                    s.latitude, s.longitude,
+                    results
+                )
+                results[0] <= 10000f // 10,000 meters = 10 km
+            }
         }
     }
 
@@ -112,72 +127,23 @@ fun GridMapScreen(
                     Text("Loading Microgrid Map...", fontWeight = FontWeight.SemiBold, color = CharcoalText)
                 }
             }
-        } else if (!useGoogleNativeMap) {
-            // Interactive Leaflet Map with My Location & 10 km Circle
+        } else {
+            // Interactive Google Maps with Live GPS Location & 10 km Circle
             LeafletMapView(
                 stations = stationList,
                 selectedStationId = selectedStationId,
                 onStationSelected = { id ->
                     selectedStationId = id
                 },
-                userLat = userLatLng.latitude,
-                userLng = userLatLng.longitude,
+                userLat = liveUserLocation?.latitude,
+                userLng = liveUserLocation?.longitude,
+                recenterTrigger = recenterCounter,
+                onUserLocationDetected = { lat, lng ->
+                    liveUserLocation = LatLng(lat, lng)
+                },
                 show10KmCircle = true,
                 modifier = Modifier.fillMaxSize()
             )
-        } else {
-            // Google Maps Compose with My Location & 10 km Circle
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(userLatLng, 12f)
-            }
-
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState
-            ) {
-                // My Location Marker
-                Marker(
-                    state = MarkerState(position = userLatLng),
-                    title = "My Location",
-                    snippet = "10 km radius active",
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                )
-
-                // 10 km Radius Circle
-                Circle(
-                    center = userLatLng,
-                    radius = 10000.0,
-                    fillColor = Color(0x223B82F6),
-                    strokeColor = Color(0xFF2563EB),
-                    strokeWidth = 3f
-                )
-
-                stationList.forEach { station ->
-                    if (station.latitude != 0.0 && station.longitude != 0.0) {
-                        val results = FloatArray(1)
-                        android.location.Location.distanceBetween(
-                            userLatLng.latitude, userLatLng.longitude,
-                            station.latitude, station.longitude,
-                            results
-                        )
-                        val isInside10Km = results[0] <= 10000f
-                        val distKm = String.format("%.1f km", results[0] / 1000f)
-
-                        Marker(
-                            state = MarkerState(position = LatLng(station.latitude, station.longitude)),
-                            title = station.name,
-                            snippet = if (isInside10Km) "⚡ Inside 10 km ($distKm) - ${station.capacityKw} kW" else "$distKm - ${station.capacityKw} kW",
-                            icon = BitmapDescriptorFactory.defaultMarker(
-                                if (isInside10Km) BitmapDescriptorFactory.HUE_GREEN else BitmapDescriptorFactory.HUE_YELLOW
-                            ),
-                            onClick = {
-                                selectedStationId = station.id
-                                false
-                            }
-                        )
-                    }
-                }
-            }
         }
 
         // Top Status Header / Map Controls
@@ -203,22 +169,36 @@ fun GridMapScreen(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(if (stationsWithin10Km.isNotEmpty()) Color(0xFF15803D) else Color(0xFF2563EB))
+                            .background(
+                                if (liveUserLocation != null) {
+                                    if (stationsWithin10Km.isNotEmpty()) Color(0xFF15803D) else Color(0xFF2563EB)
+                                } else {
+                                    Color(0xFFEAB308) // Amber while acquiring GPS
+                                }
+                            )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = if (stationsWithin10Km.isNotEmpty()) {
-                                "${stationsWithin10Km.size} in 10 km • ${stationList.size} Total"
+                            text = if (liveUserLocation != null) {
+                                if (stationsWithin10Km.isNotEmpty()) {
+                                    "${stationsWithin10Km.size} in 10 km • ${stationList.size} Total"
+                                } else {
+                                    "0 in 10 km • ${stationList.size} Total"
+                                }
                             } else {
-                                "${stationList.size} Active Solar Grids"
+                                "Acquiring GPS • ${stationList.size} Stations"
                             },
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
                             color = CharcoalText
                         )
                         Text(
-                            text = "10 km Coverage Circle Active",
+                            text = if (liveUserLocation != null) {
+                                "Live GPS Active • 10 km Circle"
+                            } else {
+                                "Tap 🎯 to center on your location"
+                            },
                             fontSize = 10.sp,
                             color = GrayText
                         )
@@ -226,41 +206,29 @@ fun GridMapScreen(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Map engine toggle
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable { useGoogleNativeMap = !useGoogleNativeMap },
-                        color = MaterialTheme.colorScheme.background,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                    // Re-center GPS button
+                    IconButton(
+                        onClick = {
+                            recenterCounter++
+                            queryLiveLocation(context) { loc -> liveUserLocation = loc }
+                        },
+                        modifier = Modifier.size(32.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = if (useGoogleNativeMap) Icons.Default.Layers else Icons.Default.Map,
-                                contentDescription = null,
-                                modifier = Modifier.size(13.dp),
-                                tint = CharcoalText
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = if (useGoogleNativeMap) "Native" else "Live Grid",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = CharcoalText
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.MyLocation,
+                            contentDescription = "My Location",
+                            modifier = Modifier.size(18.dp),
+                            tint = Color(0xFF2563EB)
+                        )
                     }
 
                     Spacer(modifier = Modifier.width(6.dp))
 
                     IconButton(
                         onClick = { viewModel.loadStations() },
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(32.dp)
                     ) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", modifier = Modifier.size(16.dp), tint = CharcoalText)
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", modifier = Modifier.size(18.dp), tint = CharcoalText)
                     }
                 }
             }
@@ -276,16 +244,21 @@ fun GridMapScreen(
                 .padding(horizontal = 16.dp, vertical = 20.dp)
         ) {
             selectedStation?.let { station ->
-                val distanceKm = remember(station, userLatLng) {
-                    val results = FloatArray(1)
-                    android.location.Location.distanceBetween(
-                        userLatLng.latitude, userLatLng.longitude,
-                        station.latitude, station.longitude,
-                        results
-                    )
-                    results[0] / 1000f
+                val distanceKm = remember(station, liveUserLocation) {
+                    val uLoc = liveUserLocation
+                    if (uLoc != null) {
+                        val results = FloatArray(1)
+                        android.location.Location.distanceBetween(
+                            uLoc.latitude, uLoc.longitude,
+                            station.latitude, station.longitude,
+                            results
+                        )
+                        results[0] / 1000f
+                    } else {
+                        null
+                    }
                 }
-                val isWithin10Km = distanceKm <= 10.0f
+                val isWithin10Km = distanceKm != null && distanceKm <= 10.0f
 
                 Card(
                     modifier = Modifier
@@ -348,7 +321,7 @@ fun GridMapScreen(
                                         }
                                     }
                                     Text(
-                                        text = "${station.address} • ${String.format("%.1f km away", distanceKm)}",
+                                        text = if (distanceKm != null) "${station.address} • ${String.format("%.1f km away", distanceKm)}" else station.address,
                                         fontSize = 11.sp,
                                         color = GrayText,
                                         maxLines = 1,
@@ -442,4 +415,46 @@ fun GridMapScreen(
             }
         }
     }
+}
+
+/**
+ * Queries the device's live GPS/Network location provider for current coordinates.
+ */
+private fun queryLiveLocation(context: Context, onLocation: (LatLng) -> Unit) {
+    try {
+        val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
+        val providers = lm.getProviders(true)
+        var bestLocation: Location? = null
+        for (provider in providers) {
+            val loc = lm.getLastKnownLocation(provider) ?: continue
+            if (bestLocation == null || loc.accuracy < bestLocation.accuracy) {
+                bestLocation = loc
+            }
+        }
+        if (bestLocation != null) {
+            onLocation(LatLng(bestLocation.latitude, bestLocation.longitude))
+        }
+
+        val listener = object : LocationListener {
+            override fun onLocationChanged(loc: Location) {
+                onLocation(LatLng(loc.latitude, loc.longitude))
+                try {
+                    lm.removeUpdates(this)
+                } catch (e: Exception) {}
+            }
+            @Deprecated("Deprecated in Java")
+            override fun onStatusChanged(p: String?, s: Int, e: Bundle?) {}
+            override fun onProviderEnabled(p: String) {}
+            override fun onProviderDisabled(p: String) {}
+        }
+
+        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000L, 1f, listener)
+        }
+        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 1f, listener)
+        }
+    } catch (e: SecurityException) {
+        // Handled if permission not yet accepted
+    } catch (e: Exception) {}
 }
